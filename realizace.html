@@ -1,0 +1,1280 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — realizace a nátěr</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5em 1em 4em; }
+  h1 { margin: 0.3em 0 0.2em; font-size: 1.6em; }
+  .lead { color: #555; margin-bottom: 1.5em; line-height: 1.5; }
+  h2 {
+    margin-top: 1.8em; padding-bottom: 0.3em;
+    border-bottom: 2px solid #1a5f7f;
+    font-size: 1.2em;
+  }
+  h3 { margin-top: 1.2em; color: #444; font-size: 1em; }
+
+  table { border-collapse: collapse; width: 100%; margin: 0.5em 0 1em; background: white; border-radius: 6px; overflow: hidden; font-size: 14px; }
+  th, td { padding: 6px 12px; border-bottom: 1px solid #eee; }
+  th { background: #f0f3f5; text-align: left; font-weight: 600; color: #555; font-size: 13px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr:last-child td { border-bottom: none; }
+  tr.total td { background: #1a5f7f; color: white; font-weight: 600; }
+
+  .summary {
+    background: #eef5fb; border-left: 4px solid #1a5f7f;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 14px; line-height: 1.6;
+  }
+  .summary strong { color: #1a5f7f; }
+  .warn {
+    background: #fff8e1; border-left: 4px solid #b08200;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; color: #5a4a00; line-height: 1.5;
+  }
+  .ok {
+    background: #e8f5e9; border-left: 4px solid #1a7f37;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; color: #1a4a1f; line-height: 1.5;
+  }
+
+  ol.steps { padding-left: 1.4em; line-height: 1.6; }
+  ol.steps li { margin-bottom: 0.6em; }
+  ol.steps li strong { color: #1a5f7f; }
+  .timeline { display: grid; grid-template-columns: 110px 1fr; gap: 4px 14px; margin: 0.6em 0; font-size: 14px; line-height: 1.5; }
+  .timeline .when { color: #1a5f7f; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .swatches {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px; margin: 0.8em 0;
+  }
+  .swatch {
+    background: white; border: 2px solid #ddd; border-radius: 8px;
+    padding: 10px; cursor: pointer; text-align: center;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .swatch:hover { border-color: #1a5f7f; box-shadow: 0 2px 6px rgba(26,95,127,0.10); }
+  .swatch.active { border-color: #1a5f7f; box-shadow: 0 0 0 3px rgba(26,95,127,0.18); }
+  .swatch .chip {
+    width: 100%; height: 60px; border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.15); margin-bottom: 6px;
+  }
+  .swatch .name { font-size: 13px; font-weight: 600; color: #444; }
+  .swatch .hex { font-size: 11px; color: #888; font-family: ui-monospace, monospace; }
+
+  .yellow-control {
+    background: white; border: 1px solid #ddd; border-radius: 8px;
+    padding: 14px 18px; margin: 0.8em 0;
+  }
+  .yellow-control .row { display: flex; align-items: center; gap: 14px; }
+  .yellow-control .preview {
+    width: 64px; height: 64px; border-radius: 4px;
+    border: 1px solid rgba(0,0,0,0.15);
+  }
+  .yellow-control input[type="range"] { flex: 1; }
+  .yellow-control .labels { display: flex; justify-content: space-between; font-size: 11px; color: #777; margin-top: 4px; }
+
+  .product-card {
+    background: white; border: 1px solid #ddd; border-radius: 8px;
+    padding: 14px 18px; margin: 1em 0; font-size: 14px;
+  }
+  .product-card .title { font-weight: 600; color: #1a5f7f; font-size: 16px; margin-bottom: 6px; }
+  .product-card .price { font-weight: 600; color: #222; }
+  .product-card .meta { color: #777; font-size: 13px; margin-top: 8px; }
+  .product-card a { color: #1a5f7f; }
+
+  .pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 0.8em 0; }
+  .pros, .cons {
+    background: white; border-radius: 6px; padding: 12px 16px;
+    font-size: 13px; line-height: 1.5;
+  }
+  .pros { border-left: 4px solid #1a7f37; }
+  .cons { border-left: 4px solid #b08200; }
+  .pros h4 { margin: 0 0 6px; color: #1a7f37; font-size: 13px; }
+  .cons h4 { margin: 0 0 6px; color: #b08200; font-size: 13px; }
+  .pros ul, .cons ul { margin: 0; padding-left: 18px; }
+
+  @media (max-width: 600px) {
+    .pros-cons { grid-template-columns: 1fr; }
+  }
+
+  /* Záložky uvnitř Realizace */
+  .vartabs {
+    display: flex; gap: 4px; margin: 0.5em 0 1.2em;
+    border-bottom: 2px solid #1a5f7f;
+    flex-wrap: wrap;
+  }
+  .vartab {
+    padding: 8px 18px; cursor: pointer;
+    background: #e8eef2; color: #555;
+    border-radius: 6px 6px 0 0;
+    font-size: 14px; font-weight: 600;
+    border: none; border-bottom: 0;
+  }
+  .vartab.active { background: #1a5f7f; color: white; }
+  .vartab:hover:not(.active) { background: #d0dde6; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html" class="active">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+</nav>
+
+<main>
+<h1>Realizace — nátěr dřeva a barvy modelu</h1>
+<p class="lead">
+  Plocha k natření a spotřeba lazury, hodnocení Adler Pullex Aqua 3in1, víkendový postup aplikace,
+  vzorník barev dřeva pro 3D model — záložka <strong>Nátěr a barva</strong>. Inventář spojů, konkrétní vruty
+  a porovnání hlav — záložka <strong>Šrouby</strong>.
+</p>
+
+<div class="vartabs">
+  <button class="vartab active" data-tab="tab-nater">Nátěr a barva</button>
+  <button class="vartab" data-tab="tab-srouby">Šrouby</button>
+</div>
+
+<div class="tab-content active" id="tab-nater">
+
+<h2>1. Plocha dřeva k natření</h2>
+<p style="font-size: 13px; color: #666; margin: 0 0 0.6em;">
+  Plocha = obvod profilu × celková délka + plochy čelních řezů. Hodnoty se počítají
+  z aktuálního <code>out/parts_list.json</code> (= aktuální model). Při změně modelu se
+  tabulka přepočítá po regeneraci JSON souboru.
+</p>
+<table id="areaTable">
+  <thead>
+    <tr>
+      <th>Profil</th>
+      <th class="num">Obvod [cm]</th>
+      <th class="num">Délka celkem [cm]</th>
+      <th class="num">Plocha boků [m²]</th>
+      <th class="num">Čelní řezy [m²]</th>
+      <th class="num">Celkem [m²]</th>
+    </tr>
+  </thead>
+  <tbody id="areaBody">
+    <tr><td colspan="6" style="color:#888; text-align:center;">načítám parts_list.json…</td></tr>
+  </tbody>
+</table>
+<div class="summary" id="areaSummary">
+  <strong>Celková plocha k natření:</strong> <span id="totalArea">—</span>
+</div>
+
+<h2>2. Spotřeba lazury Adler Pullex Aqua 3in1</h2>
+<table id="paintTable">
+  <thead>
+    <tr>
+      <th>Scénář</th>
+      <th class="num">Plocha [m²]</th>
+      <th class="num">Při 10 m²/L</th>
+      <th class="num">Balení 2.5 L</th>
+      <th class="num">Cena [Kč]</th>
+    </tr>
+  </thead>
+  <tbody id="paintBody"></tbody>
+</table>
+<div class="summary">
+  TDS udává vydatnost <strong>10–12 m²/L pro hoblované/broušené dřevo</strong> (= naše KVH),
+  8 m²/L pro hrubořezané. Tabulka počítá konzervativně s 10 m²/L. TDS doporučuje pro pergolu
+  (= <em>přímé zvětrávání + světlé/střední barvy</em>) <strong>3 vrstvy</strong>: základování →
+  základní vrstva → vrchní vrstva. 2 vrstvy stačí jen pro pigmentované tmavé odstíny bez plné expozice.
+</div>
+<div class="warn">
+  ⚠ <strong>Doplňková biocidní impregnace</strong> — TDS volitelně doporučuje pro KVH smrk
+  (třída odolnosti 4 dle ČSN EN 350-2) přidat 1× <strong>Pullex Aqua-Imprägnierung 5357</strong>
+  jako 0. krok před základováním. U pergoly v plné expozici velmi doporučené —
+  prodlouží intervaly renovace.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Nákupní seznam — kolik a za kolik</h3>
+<p style="font-size: 13px; color: #666;">
+  Konkrétní balení k objednání pro plochu <strong>51 m²</strong>. Ceny aktuální dle:
+  <a href="https://eshop.drevosmutny.cz/ploty--fasady--pergoly/adler-pullex-aqua-3in1-lasur-eiche--2-5l/" target="_blank" rel="noopener">drevosmutny.cz</a>
+  (Aqua 3in1 1 230,60 Kč/2.5 L) a
+  <a href="https://www.barvyadler.cz/hobby-natery/adler-pullex-aqua-ig-vodou-reditelna-impregnace/" target="_blank" rel="noopener">barvyadler.cz</a>
+  (Aqua-IG 5357: 1 339 Kč/2.5 L, 434 Kč/0.75 L). Doporučená varianta = <strong>s impregnací</strong>
+  (modrý řádek dole) — TDS pro KVH smrk v plné expozici. Ušetřit ~3 100 Kč můžeš vynecháním impregnace
+  (krémový řádek), ale interval renovace zkrátíš o ~rok.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Položka</th>
+      <th class="num">Kusů</th>
+      <th class="num">Kč/ks</th>
+      <th class="num">Celkem</th>
+    </tr>
+  </thead>
+  <tbody id="shoppingBody"></tbody>
+</table>
+
+<h3 style="color: #444; margin-top: 1.4em;">Pomocné nářadí a materiál (nezapomeň)</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th>Položka</th>
+      <th class="num">Kusů</th>
+      <th>Pozn.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <a href="https://bauhaus.cz/unistar-plochy-stetec-28412865" target="_blank" rel="noopener">
+          <strong>Color Expert UniStar Plochý štětec 70 mm</strong>
+        </a> (Bauhaus, popisek: <em>„optimální výsledky při natírání hmotami na bázi vody"</em>)
+      </td>
+      <td class="num">1 ks à 89 Kč</td>
+      <td><strong>velký na rychlé natírání</strong> — boky sloupů (10× 2 m), průvlaků (6.5 m), krovů (4 m). Pokryje ~60 % strany hranolu 12×12 cm jedním tahem. Pozor: tenká vrstva — větší štětec drží víc lazury, snadno přetížíš.</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://www.bauhaus.cz/uni-plochy-stetec-26328276" target="_blank" rel="noopener">
+          <strong>UNI Plochý štětec 40 mm</strong>
+        </a> (Bauhaus, syntetický — explicitně pro vodou ředitelné lazury)
+      </td>
+      <td class="num">2 ks à 32 Kč = 64 Kč</td>
+      <td><strong>hlavní</strong> pracovní štětec na boky hranolů; 1× hlavní + 1× rezerva (jeden vždy uschne v lazuře)</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://www.bauhaus.cz/ploche-stetce-243673" target="_blank" rel="noopener">
+          <strong>UNI Plochý štětec 30 mm</strong>
+        </a> (Bauhaus, stejná syntetická řada)
+      </td>
+      <td class="num">1 ks à 22 Kč</td>
+      <td>na čela hranolů (12×12 cm), zuby v krovech (4×8 cm) — kde se 40 mm nevejde</td>
+    </tr>
+    <tr>
+      <td>
+        <a href="https://www.bauhaus.cz/spokar-zarohovy-stetec-profi-21363634" target="_blank" rel="noopener">
+          <strong>Spokar Zárohový štětec PROFI 25 mm</strong>
+        </a> (Bauhaus, úhlové štětiny — angled tip)
+      </td>
+      <td class="num">1 ks à 49 Kč</td>
+      <td><strong>na detaily a mitery</strong> — 45° řezy vzpěr 10×10 cm, ostré rohy spár, dotřít okolí patek M20. Úhlový tip dosáhne do koutů, kde plochý vyteče.</td>
+    </tr>
+    <tr>
+      <td>Brusná houba P120 (= scotch-brite jemná)</td>
+      <td class="num">3 ks</td>
+      <td>na zaoblení nově řezaných hran (čela, zuby, mitery)</td>
+    </tr>
+    <tr>
+      <td>Brusný papír P80</td>
+      <td class="num">5 archů</td>
+      <td>bodově na suky a výmaštky (NE plošně — KVH je hoblovaný)</td>
+    </tr>
+    <tr>
+      <td>Vlhkoměr na dřevo</td>
+      <td class="num">1 ks</td>
+      <td>kontrola 15 % ± 2 % před nátěrem (cca 500–800 Kč; lze i půjčit)</td>
+    </tr>
+    <tr>
+      <td>Hadry, vědro, plastové míchadlo</td>
+      <td class="num">—</td>
+      <td>doma</td>
+    </tr>
+    <tr>
+      <td>Lepicí páska na ochranu nerez patek M20 (před skvrnami)</td>
+      <td class="num">1 role</td>
+      <td>maskovací krepová</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <strong>⚠ Proč ne váleček (i když ho Bauhaus má)?</strong> Bauhaus prodává
+  <a href="https://www.bauhaus.cz/lazurovaci-valecek-28425474" target="_blank" rel="noopener">Lazurovací váleček 10 cm</a> (22 Kč), ale pro <em>tuto</em> pergolu
+  nedoporučuji:
+  <ul style="margin: 6px 0 0;">
+    <li><strong>TDS Adler explicitně předepisuje štětec</strong> pro Pullex Aqua 3in1 — tenkovrstvá lazura má <em>proniknout do dřeva</em>, ne stát na povrchu. Štětec ji vtlačí, váleček ji nechá ležet → fleky a nerovnoměrná tloušťka.</li>
+    <li><strong>Hranol 12×12 cm je úzký</strong> — štětec 40 mm pokryje jednu stranu jedním tahem. Časový zisk válečku by byl minimální.</li>
+    <li><strong>Stejně potřebuješ štětec</strong> na čela hranolů, zuby v krovech, mitery vzpěr a kolem patek — válečkem se sem nedostaneš. Pak je dvojí nářadí navíc.</li>
+    <li><strong>Lazura kape z válečku</strong> více než z štětce (tekutá konzistence) — víc šmouhání, víc maskování patek.</li>
+  </ul>
+  Pro hladké velké plochy (např. fasáda) má váleček smysl. Pro hranoly + výřezy = jen štětec.
+</div>
+
+<h2>3. Doporučení: Adler Pullex Aqua 3in1 — Lasur FS</h2>
+<div class="product-card">
+  <div class="title">Adler Pullex Aqua 3in1 — Lasur FS, 2.5 L</div>
+  <div>Vodou ředitelná matná tenkovrstvá lazura — základování + základní vrstva + vrchní vrstva v jednom produktu („3in1"). Pro rozměrově nestálé a omezeně stálé dřevěné prvky v exteriéru.</div>
+  <div class="meta">
+    <strong class="price">1 230,60 Kč / 2.5 L</strong> · vydatnost 10–12 m²/L (hoblované) · matný vzhled · VOC 130 g/L<br>
+    Produkt: <a href="https://eshop.drevosmutny.cz/ploty--fasady--pergoly/adler-pullex-aqua-3in1-lasur-eiche--2-5l/" target="_blank" rel="noopener">drevosmutny.cz</a> ·
+    Technický list (ZKL 5368, 05-21):
+    <a href="pullex-aqua-3in1-lasur-fs_tmb_5368_cs.pdf" target="_blank" rel="noopener">PDF</a>
+  </div>
+</div>
+<div class="pros-cons">
+  <div class="pros">
+    <h4>✓ Proč ano pro tuhle pergolu</h4>
+    <ul>
+      <li>TDS explicitně uvádí pergoly mezi <em>oblastmi použití</em>, KVH mezi <em>vhodnými podklady</em>.</li>
+      <li>Vodou ředitelná → bezzápachová, štětce se opláchnou vodou (TDS: „okamžitě po použití").</li>
+      <li>Obsahuje biocid <strong>IPBC 3 g/kg</strong> proti zamodrání a plísním — separátní fungicid nutný jen pro skladované dřevo s viditelným napadením.</li>
+      <li>Rovnoměrné odbourávání laku (= renovace bez broušení, jen umýt a přetřít světlejším odstínem).</li>
+      <li>3 nátěry v jednom dni (schnutí 3–4 h mezi vrstvami) → 1 víkend na celou pergolu.</li>
+      <li>Pigment = UV ochrana. Vzorník: Borovice / Modřín / Dub / Ořech / Palisandr.</li>
+    </ul>
+  </div>
+  <div class="cons">
+    <h4>⚠ Na co dát pozor (přímo z TDS)</h4>
+    <ul>
+      <li><strong>Vlhkost dřeva max 15 % ± 2 %</strong> pro jehličnaté. KVH skladované venku změřit vlhkoměrem.</li>
+      <li>Teplota materiálu, podkladu i okolí <strong>min +15 °C</strong>; optimum +15–25 °C při vlhkosti 40–80 %.</li>
+      <li><strong>Nenanášet:</strong> na přímém slunci, při dešti, extrémní vlhkosti, silném větru, hrozícím mrazu.</li>
+      <li>Příprava pro KVH: <strong>plošné broušení P80 NENÍ nutné</strong> — KVH je hoblovaný a má z výroby fazety 2×45° na podélných hranách. Plošné P80 by jen vytvořilo viditelné rýhy. <strong>Zaoblit / brousit jen nově vyrobené řezy</strong> (čela, zuby, mitery — viz sekce 4).</li>
+      <li>Pryskyřičné fleky / sukové oči: očistit <strong>ADLER Nitro-Verdünnung 80001</strong> (NE líh, NE benzín).</li>
+      <li><strong>Příliš světlé / příliš tmavé</strong> odstíny TDS nedoporučuje pro extrémní povětrnost — pro pergolu zvolit <strong>střední odstín</strong> (Dub / Modřín / Borovice / Ořech).</li>
+      <li>Patky M20, vruty, vnitřní strany spojů — natřít <strong>před montáží</strong>; po nasazení se k nim nedostaneš.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Šrouby obsah přesunut na konec do tab-srouby -->
+
+<h2>4. Postup za víkend (pátek večer → neděle večer)</h2>
+<p>
+  <strong>Postup podle TDS ZKL 5368 (05-21).</strong> Předpoklady: dřevo má vlhkost 15 ± 2 % (= dodací stav KVH, pokud
+  bylo skladované suché), v krytém prostoru (garáž / přístřešek), teplota 15–25 °C, vlhkost vzduchu 40–80 %.
+  Pokud je &lt; 15 °C nebo prší → odložit (TDS výslovně zakazuje).
+</p>
+
+<h3>Před víkendem (nákup)</h3>
+<ul style="font-size: 14px; line-height: 1.5; margin: 0.4em 0;">
+  <li><strong>Pullex Aqua 3in1</strong> — 7 ks à 2.5 L (3 vrstvy × 51 m² ÷ 10 m²/L = 15.4 L, +rezerva)</li>
+  <li><strong>Pullex Aqua-IG 5357</strong> (volitelná impregnace) — cca 5 L pro 1 vrstvu × 51 m²</li>
+  <li><strong>ADLER Nitro-Verdünnung 80001</strong> (1 L) — na pryskyřičné fleky, sukové oči</li>
+  <li>Brusný papír <strong>P80</strong> (15–20 archů), brusná houba</li>
+  <li>Štětce (viz odkazy v tabulce nářadí výše): Color Expert UniStar 70 mm × 1 (velké plochy) + UNI 40 mm × 2 (hlavní) + UNI 30 mm × 1 (čela / zuby) + Spokar zárohový 25 mm × 1 (mitery / rohy)</li>
+  <li>Vědro, plastové míchadlo, hadr, vlhkoměr na dřevo</li>
+  <li>Lepicí páska na ochranu nerez patek M20 + polykarbonátu (pokud je už osazeno)</li>
+</ul>
+
+<h3>Pátek večer (1.5 h — příprava)</h3>
+
+<div class="ok">
+  <strong>✓ Co NENÍ nutné dělat pro KVH</strong> (= šetří se ~3 h víkendu):
+  <ul style="margin: 6px 0 0;">
+    <li><strong>Plnoplošné broušení P80</strong> — KVH je hoblovaný frézami v továrně, povrch je hladký a dimenzionálně stabilní.
+        Plošné P80 (zrno 250 µm) by mohlo zanechat viditelné rýhy pod tenkovrstvou matnou lazurou.
+        TDS uvádí „doporučujeme pro <em>optimální</em> trvanlivost" — pro hobby pergolu rozdíl ~6 vs ~8 let do renovace.</li>
+    <li><strong>Zaoblovat podélné hrany hranolů</strong> — KVH má typicky <strong>z výroby sražené fazety 2 × 45°</strong> (Kantenfase, dle ÖNORM B 2310).
+        Tato fazeta řeší 90° hranu (= nejslabší místo nátěru) <strong>bez další práce</strong>.
+        ⚠ Ověř u dodavatele (Artisan / pila) při objednávce — pokud KVH nemá factory fazety, pak ano, ručně zaoblit P120.</li>
+  </ul>
+</div>
+
+<div class="warn">
+  <strong>⚠ Co JE nutné dělat</strong> — týká se hran, které <em>vzniknou až tvým řezáním</em>, ne těch z výroby:
+  <ul style="margin: 6px 0 0;">
+    <li><strong>Zaoblit čela po zkrácení na délku</strong> (brusná houba P120, ~30 s/čelo dokola):
+      14× čela 12×12 cm sloupů + 16× čela 8×16 cm krovů + 12× čela 4×6 latí + 20× miterů vzpěr 10×10 = <strong>cca 60 hran, ~30 min</strong>.</li>
+    <li><strong>Zaoblit zuby v nosnících pro krovy</strong> (= výřez 4 cm hluboký v čelním průvlaku, kam sedne krov) — ostré hrany po pile.</li>
+    <li><strong>Zaoblit miterové konce vzpěr</strong> 10×10 cm (45° řezy) — <em>jen lehce</em>, ať si nesnížíš dosednutí na sloup/nosník.</li>
+    <li><strong>Bodově P80</strong> na sukové oči, výmaštky, místa s lesklým glanc — kdyžtak najdeš.</li>
+    <li><strong>Pryskyřičná místa</strong> očistit hadrem s <strong>ADLER Nitro-Verdünnung 80001</strong>.</li>
+    <li>Vyklepat / odsát prach. <strong>Vlhkoměrem zkontrolovat dřevo</strong> (cíl: 15 % ± 2). Pokud &gt; 17 %, počkat 2 dny v krytém prostoru.</li>
+  </ul>
+</div>
+
+<div class="timeline">
+  <div class="when">18:00–18:15</div><div>Postavit kozy v kryté místnosti. Změřit teplotu (≥ 15 °C), vlhkost vzduchu (40–80 %), vlhkost dřeva vlhkoměrem (15 ± 2 %).</div>
+  <div class="when">18:15–19:00</div><div><strong>Zaoblit nově vyrobené hrany</strong> (čela, zuby, mitery) brusnou houbou P120. Ostatní hrany se nedotýkat — factory fazety stačí.</div>
+  <div class="when">19:00–19:20</div><div><strong>Bodové broušení P80</strong> na suky / výmaštky / glanc. Pryskyřice → hadr s Nitro-Verdünnung 80001.</div>
+  <div class="when">19:20–19:30</div><div>Vyklepat prach, vlhkým hadrem otřít, suchým hadrem dosušit. Rozmíchat lazuru.</div>
+</div>
+
+<h3>Sobota (≈ 10 h)</h3>
+<p style="font-size: 13px; color: #666; margin: 0.4em 0;">
+  TDS: přelakovat lze po 3–4 h. <strong>Klíčový princip:</strong> u nových dílů 1× ze všech stran, další vrstvy
+  jen z pohledové strany. Patky se montují <em>po</em> nátěru — všechny řezy a vnitřní spoje musí být natřené.
+</p>
+<div class="timeline">
+  <div class="when">8:00–9:30</div><div><em>Volitelně</em> <strong>impregnace Pullex Aqua-IG 5357</strong> (1× ze všech stran). U KVH smrku v plné expozici TDS doporučuje. Pokud vynecháš, posuň 1. vrstvu rovnou na 8:00.</div>
+  <div class="when">9:30–13:30</div><div>Schnutí impregnace 3–4 h <strong>NEBO</strong> rovnou <strong>1. vrstva = ZÁKLADOVÁNÍ Aqua 3in1</strong> — ze <em>všech stran</em>. Hranoly natřít 3 strany, počkat 30 min na zaschnutí povrchu, otočit, natřít 4. stranu + čela. Tenká vrstva (lazura se má vsáknout, ne stát na povrchu).</div>
+  <div class="when">13:30–17:30</div><div>Schnutí 3–4 h. <strong>2. vrstva = ZÁKLADNÍ VRSTVA Aqua 3in1</strong> — TDS: <em>„vyžadováno pouze pro přímé zvětrávání a světlé barvy"</em>. Pergola = obojí splněno → ano. Jen z pohledové strany (= ven). Pokud zvolíš tmavý odstín (Ořech / Palisandr) bez plné expozice, tento krok lze vynechat.</div>
+  <div class="when">17:30–21:30</div><div>Schnutí 3–4 h. <strong>3. vrstva = VRCHNÍ VRSTVA Aqua 3in1</strong> — z pohledové strany. Pracovat při dostatečném světle (volný stojan + lampa).</div>
+</div>
+
+<h3>Neděle (4 h — rezerva + finální schnutí)</h3>
+<div class="timeline">
+  <div class="when">9:00–13:00</div><div><strong>Rezerva</strong> — retuše, doúpravy, místa která se v pátek nestihla. Pokud jsi 3. vrstvu nestihl v sobotu večer, dělej ji teď (schne 3–4 h). Hrany řezů, které vzniknou při finální montáži, dotřít.</div>
+  <div class="when">13:00+</div><div>Plně přetíratelné, takže lze začít s montáží. <strong>Manipulace opatrně</strong> — finální vytvrzení trvá 1 týden.</div>
+</div>
+
+<div class="ok">
+  ✓ <strong>Realita víkendového plánu:</strong> 3 vrstvy + volitelná impregnace = 4 nátěry × (45 min nanášení + 3 h schnutí)
+  = ~15 h. Vejde se do soboty od 8:00 do 22:00 + neděle jako rezerva. Pokud má TDS-předepsaná teplota
+  vydržet (15–25 °C bez deště), je to proveditelné. Při chladnu / dešti rozložit na 2 víkendy.
+</div>
+<div class="warn">
+  ⚠ <strong>Co TDS výslovně zakazuje</strong>: přímé slunce při nanášení (rychlé schnutí → fleky),
+  déšť, extrémní vlhkost, silný vítr, hrozící mráz. Při těchto podmínkách <strong>nezačínat</strong>.
+</div>
+<div class="summary">
+  Detailní výtah z TDS s odůvodněním všech rozhodnutí: <a href="https://github.com/tomasvicar/pergola_2/blob/main/docs/NATER_TDS_POZNAMKY.md" target="_blank" rel="noopener">docs/NATER_TDS_POZNAMKY.md</a>
+  (privátní repo) nebo otevři <a href="pullex-aqua-3in1-lasur-fs_tmb_5368_cs.pdf" target="_blank" rel="noopener">samotný TDS PDF</a>.
+</div>
+
+<h2>5. Vzorník barvy dřeva</h2>
+<p style="font-size: 13px; color: #666;">
+  Kliknutím vyber odstín (nebo si zvol <strong>vlastní barvu</strong> dole) — promítne se do 3D modelu
+  (sloupy, nosníky, krovy, latě, vzpěry, zadní krycí hranol, prkna terasy). <em>Měj
+  <a href="viewer.html" target="_blank" rel="noopener">3D model</a> otevřený ve vedlejší záložce</em> — barva se v něm změní okamžitě.
+  Hex hodnoty jsou vizuální aproximace pro renderer; reálný odstín se může lišit dle dřeviny podkladu — pro objednávku
+  je závazný název na vějířovém vzorníku Adler. <strong>Zešedlé KVH</strong> = orientační odhad, do jaké
+  stříbřitě-šedé barvy dřevo vybledne po ~5 letech, pokud zvolíš <em>bezbarvou</em> lazuru bez UV pigmentů
+  (= argument pro tónovaný odstín; pigment je to, co drží barvu).
+</p>
+<div class="swatches" id="woodSwatches"></div>
+<div style="margin-top:10px; display:flex; align-items:center; gap:8px; font-size:13px; color:#555; flex-wrap:wrap;">
+  <label for="woodCustom" style="font-weight:600;">Vlastní odstín:</label>
+  <input type="color" id="woodCustom" value="#8c5c33"
+         style="width:48px; height:32px; padding:0; border:1px solid #ccc; border-radius:4px; cursor:pointer; vertical-align:middle;">
+  <span style="color:#888;">— libovolná barva pro jemné doladění (i mimo vzorník)</span>
+</div>
+<div class="hsl-tune" style="margin-top:12px; max-width:440px; background:#fafafa; border:1px solid #eee; border-radius:6px; padding:10px 12px;">
+  <div style="font-size:13px; font-weight:600; color:#555; margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+    Jemné doladění (HSL)
+    <span id="hslChip" style="display:inline-block; width:24px; height:15px; border:1px solid #bbb; border-radius:3px;"></span>
+    <span id="hslHex" style="font-family:ui-monospace,monospace; font-size:12px; color:#888;"></span>
+  </div>
+  <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#666; margin:3px 0;">
+    <span style="width:64px;">Odstín</span><input type="range" id="hslH" min="0" max="360" value="28" style="flex:1;"></label>
+  <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#666; margin:3px 0;">
+    <span style="width:64px;">Sytost</span><input type="range" id="hslS" min="0" max="100" value="46" style="flex:1;"></label>
+  <label style="display:flex; align-items:center; gap:8px; font-size:12px; color:#666; margin:3px 0;">
+    <span style="width:64px;">Světlost</span><input type="range" id="hslL" min="0" max="100" value="37" style="flex:1;"></label>
+</div>
+
+<h2>6. Světlost žluté fasády domu</h2>
+<p style="font-size: 13px; color: #666;">
+  Posuvník mění světlost žluté omítky v 3D modelu — pro představu, jak by pergola seděla s tmavší nebo světlejší fasádou.
+</p>
+<div class="yellow-control">
+  <div class="row">
+    <div class="preview" id="yellowPreview"></div>
+    <input type="range" id="yellowSlider" min="0" max="100" value="50">
+    <div style="min-width: 70px; font-family: ui-monospace, monospace; font-size: 13px; color: #555; text-align: right;" id="yellowHex">#f5d140</div>
+  </div>
+  <div class="labels"><span>tmavě zlatá</span><span>středně (výchozí)</span><span>krémově světlá</span></div>
+</div>
+
+<div style="text-align: right; margin-top: 1.5em;">
+  <button id="resetBtn" type="button" style="background: none; border: 1px solid #ccc; color: #555; padding: 6px 16px; border-radius: 4px; cursor: pointer; font-size: 13px;">
+    Reset na výchozí barvy
+  </button>
+</div>
+
+</div><!-- /tab-nater -->
+
+<div class="tab-content" id="tab-srouby">
+
+<h2>Šrouby a spojovací materiál</h2>
+<p style="font-size: 13px; color: #666;">
+  Pergola má 5 typů konstrukčních spojů. Vše vrutované (žádné tesařské tradiční čepy) — pro hobby
+  stavbu nejrychlejší a staticky dostatečné. Ceny dle <a href="https://vruty-spax.cz/" target="_blank" rel="noopener">vruty-spax.cz</a>
+  (květen 2026). Spax HI.Force má ETA-12/0114 (= konstrukční certifikace pro dřevěné spoje, dobré
+  pro statika pokud někdo bude trvat).
+</p>
+
+<h3 style="color: #444;">Inventář spojů (přesný)</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th>Spoj</th>
+      <th class="num">Spojuje</th>
+      <th class="num">Vrut</th>
+      <th class="num">Spojů</th>
+      <th class="num">Vrutů/spoj</th>
+      <th class="num">Celkem</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Sloup ↔ čelní průvlak (back + front)</td>
+      <td>12×12 + 12×12 cm</td>
+      <td>8×220 mm</td>
+      <td class="num">8</td>
+      <td class="num">2</td>
+      <td class="num"><strong>16</strong></td>
+    </tr>
+    <tr>
+      <td>Krov ↔ čelní průvlak (back + front)</td>
+      <td>8×16 + 12×12 cm (zub 4 cm)</td>
+      <td>8×240 mm</td>
+      <td class="num">16</td>
+      <td class="num">2</td>
+      <td class="num"><strong>32</strong></td>
+    </tr>
+    <tr>
+      <td>Vzpěra ↔ sloup / nosník (mitered)</td>
+      <td>10×10 + 12×12 cm</td>
+      <td>8×160 mm</td>
+      <td class="num">10</td>
+      <td class="num">2</td>
+      <td class="num"><strong>20</strong></td>
+    </tr>
+    <tr>
+      <td>Boční nosník ↔ čelní průvlak + zadní sloup</td>
+      <td>12×12 cm</td>
+      <td>8×220 mm</td>
+      <td class="num">4</td>
+      <td class="num">1</td>
+      <td class="num"><strong>4</strong></td>
+    </tr>
+    <tr>
+      <td>Zadní krycí hranol ↔ krovy (zespodu)</td>
+      <td>6×8 + 8×16 cm</td>
+      <td>8×220 mm</td>
+      <td class="num">8</td>
+      <td class="num">1</td>
+      <td class="num"><strong>8</strong></td>
+    </tr>
+    <tr>
+      <td>Lať ↔ krov</td>
+      <td>4×6 + 8×16 cm</td>
+      <td>4.5×80 mm</td>
+      <td class="num">48</td>
+      <td class="num">1</td>
+      <td class="num"><strong>48</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 style="color: #444; margin-top: 1.4em;">Talířová vs zápustná hlava — co kdy?</h3>
+<p style="font-size: 13px; color: #666;">
+  Ve <strong>výběru hlavy je největší zmatek</strong>, tak jednoznačně: pro <em>konstrukční (nosné) spoje</em> pergoly =
+  <strong>talířová</strong>. Pro <em>latě</em> = <strong>zápustná</strong>. Důvody níže.
+</p>
+
+<div class="pros-cons">
+  <div class="pros" style="border-left-color: #1a5f7f;">
+    <h4 style="color: #1a5f7f;">Talířová hlava (Tellerkopf / washer head)</h4>
+    <div style="font-family: ui-monospace, monospace; font-size: 11px; color: #888; line-height: 1.2;">
+      ━━━━┳━━━━<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;┃<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;┃ závit<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;┻
+    </div>
+    <ul style="margin-top: 8px;">
+      <li><strong>Velká plochá hlava</strong> (Ø ~16–22 mm pro Ø 8 vrut) sedí <em>na povrchu</em> dřeva.</li>
+      <li><strong>Vysoká nosnost ve smyku</strong> — velká dosedací plocha rozkládá tlak. Měkký smrk se neutrhne pod hlavou ani při nárazovém větru.</li>
+      <li><strong>Bez předvrtávání zápustky</strong> (= 1 operace, ne 2).</li>
+      <li><strong>Spax HI.Force 8 mm je vyráběný POUZE s talírkou</strong> — výrobce ví, proč. Konstrukční vrut bez talírky pod sebou nemá ekonomický smysl pro nosné spoje.</li>
+      <li>Pohledové: hlava ~3 mm vystupuje. Po nátěru ladí, zblízka vidět.</li>
+    </ul>
+    <p style="margin: 6px 0 0; font-size: 12px; color: #555;">
+      <strong>Použít pro:</strong> sloup-průvlak, krov-průvlak, boční nosník, vzpěry, zadní krycí hranol — všechny Ø 8 mm spoje.
+    </p>
+  </div>
+  <div class="pros" style="border-left-color: #b08200;">
+    <h4 style="color: #b08200;">Zápustná hlava (Senk / countersunk)</h4>
+    <div style="font-family: ui-monospace, monospace; font-size: 11px; color: #888; line-height: 1.2;">
+      ━━━╲&nbsp;&nbsp;╱━━━<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;╲╱<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;┃ závit<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;┻
+    </div>
+    <ul style="margin-top: 8px;">
+      <li><strong>Kuželovitá hlava</strong> (45° kužel) se sama <em>zapustí do dřeva</em> flush s povrchem.</li>
+      <li><strong>Čistý vzhled</strong> — hlava zmizí, vidět jen TORX otvor.</li>
+      <li><strong>Menší dosedací plocha</strong> než talírka → riziko prokloužení hlavy v měkkém smrku při velkém zatížení. NE pro nosné spoje.</li>
+      <li>Pro Ø 4.5–5 mm vruty (= latě) ideální — zatížení malé, vzhled důležitý (lať je pohledová).</li>
+      <li>Pokud chceš zápustnou pro 8 mm konstrukční vrut, musíš předvrtat zápustku Forstnerovým vrtákem (= 2× tolik práce). Pro pergolu zbytečné.</li>
+    </ul>
+    <p style="margin: 6px 0 0; font-size: 12px; color: #555;">
+      <strong>Použít pro:</strong> latě (lať 4 cm na krov 8×16, 4.5×80 mm vrut). Nic jiného v pergole.
+    </p>
+  </div>
+</div>
+
+<div class="summary" style="margin-top: 1em;">
+  <strong>Pro naši pergolu jednoznačně:</strong>
+  <ul style="margin: 6px 0 0;">
+    <li>Ø 8 mm konstrukční (sloup, krov, vzpěra, nosník, krycí hranol) → <strong>talířová</strong> (Spax HI.Force 8×160/220/240 WIROX T40)</li>
+    <li>Ø 4.5 mm lať → <strong>zápustná</strong> (Spax 4.5×80 WIROX T20 Senk)</li>
+  </ul>
+  Tohle je přesně to, co je v nákupním seznamu níž — žádné rozhodování navíc.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Po smontování: tmelit, kolíkovat, nebo jen přetřít?</h3>
+<p style="font-size: 13px; color: #666;">
+  <strong>Krátká odpověď: jen přetřít.</strong> Tmelit ne, kolíky jen pokud chceš perfekcionistický finish na latích.
+</p>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th>Možnost</th>
+      <th>Talírka 8 mm</th>
+      <th>Zápustná 4.5 mm (latě)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="background: #e8f5e9;">
+      <td><strong>★ Jen přetřít lazurou</strong> (= výchozí)</td>
+      <td>Hlava na povrchu, lazura ji zachová. TX otvor lehce vidět zblízka, z normální vzdálenosti přehlédnutelný.</td>
+      <td>Hlava flush v laťi, vidět jen drobná tečka TX. Po 2 nátěrech téměř neviditelná.</td>
+    </tr>
+    <tr>
+      <td>Tmel na dřevo + přebrousit + přetřít</td>
+      <td><em>Nemá smysl</em> — hlava je nad povrchem, tmel by ji obklopil ale nezakryl.</td>
+      <td>⚠ Technicky možné, ale <strong>venkovní tmel se po lazuře projeví v jiném odstínu</strong> než dřevo (jiná savost než smrk). Ironicky bude vrut <strong>vidět víc</strong>, ne méně.</td>
+    </tr>
+    <tr>
+      <td>Dub kolíky (Holzdübel) — řemeslně</td>
+      <td>Nadbytečné.</td>
+      <td>Klasická tesařská technika: předvrtat Forstnerem Ø 10 mm 15 mm hluboko, zapustit vrut, vlepit dub kolík (PUR lepidlo), seřezat pilou, přebrousit, přetřít. <strong>~5 min/vrut × 48 latí = 4 h navíc.</strong> Po nátěru je kolík vidět jako tmavší tečka — úmyslný design element, ne závada.</td>
+    </tr>
+    <tr>
+      <td>Silikonové záslepky na TX</td>
+      <td>❌ NE — drží 2 sezony, pak vypadnou.</td>
+      <td>❌ NE.</td>
+    </tr>
+  </tbody>
+</table>
+<div class="ok">
+  ✓ <strong>TX recess shromažďuje vodu?</strong> Ne. Recess je mělký s plochým dnem, voda v něm nezůstane —
+  a pergola má sklon 5.76°, takže vše stoupá k zadní straně. Lazura sama TX recess utěsní.<br>
+  ✓ <strong>Závěr:</strong> přetři a hotovo. Tmel je perfekcionistický rituál bez praktického přínosu;
+  venkovní tmel se v lazuře projeví jako kontrastní tečky a stojí 3-4 hodiny navíc.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Nákupní seznam šroubů — co a kolik</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Produkt</th>
+      <th class="num">Pro spoj</th>
+      <th class="num">Potřeba</th>
+      <th class="num">Balení</th>
+      <th class="num">Cena</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="https://vruty-spax.cz/spax-vrut-pro-drevostavby-8-0x160-castecny-zavit-torx-40-wirox-stribrny-50-ks" target="_blank" rel="noopener"><strong>Spax HI.Force 8 × 160 mm WIROX T40</strong> talířová hlava</a></td>
+      <td>vzpěry</td>
+      <td class="num">20 ks</td>
+      <td class="num">1 × 50 ks</td>
+      <td class="num"><strong>956 Kč</strong></td>
+    </tr>
+    <tr>
+      <td><a href="https://vruty-spax.cz/spax-vrut-pro-drevostavby-8-0x220-castecny-zavit-torx-40-wirox-stribrny-50-ks" target="_blank" rel="noopener"><strong>Spax HI.Force 8 × 220 mm WIROX T40</strong> talířová hlava</a></td>
+      <td>sloup-průvlak, nosník, krycí hranol</td>
+      <td class="num">28 ks</td>
+      <td class="num">1 × 50 ks</td>
+      <td class="num"><strong>1 486 Kč</strong></td>
+    </tr>
+    <tr>
+      <td><a href="https://vruty-spax.cz/spax-vrut-pro-drevostavby-8-0x240-castecny-zavit-torx-40-wirox-stribrny-50-ks" target="_blank" rel="noopener"><strong>Spax HI.Force 8 × 240 mm WIROX T40</strong> talířová hlava</a></td>
+      <td>krov-průvlak</td>
+      <td class="num">32 ks</td>
+      <td class="num">1 × 50 ks</td>
+      <td class="num"><strong>1 667 Kč</strong></td>
+    </tr>
+    <tr>
+      <td><a href="https://vruty-spax.cz/spax-vrut-zapustna-hlava-4-5x80-cast-zavit-tx20-wirox-stribrna-certifikovany-200-ks" target="_blank" rel="noopener"><strong>Spax 4.5 × 80 mm WIROX T20</strong> zápustná hlava</a></td>
+      <td>latě</td>
+      <td class="num">48 ks</td>
+      <td class="num">1 × 200 ks</td>
+      <td class="num"><strong>680 Kč</strong></td>
+    </tr>
+    <tr style="background: #1a5f7f; color: white; font-size: 15px;">
+      <td colspan="4"><strong>★ CELKEM šrouby</strong> (zahrnuje rezervu ~30 % na omyly)</td>
+      <td class="num"><strong>4 789 Kč</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="summary" style="margin-top: 1em;">
+  <strong>Jeden vrut pro vše?</strong> Pokud chceš zjednodušit nákup, kup <strong>2× balení 8 × 240 mm</strong>
+  (100 ks, 3 334 Kč) — pokryjí kromě latí všechny konstrukční spoje (8×240 do 8×220 a 8×160 spojů
+  jen přesahuje, klidně předvrtat hlubší díru a zapustit hlavičku). Ušetříš výběr velikostí,
+  zaplatíš o ~700 Kč víc.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Další parametry — na co se zaměřit</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th style="width: 22%;">Parametr</th>
+      <th>Co zvolit a proč</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Povrchová úprava</strong></td>
+      <td>
+        <strong>WIROX (Spax) / BluCoat (HECO)</strong> — zinečnano-fosfátová + organická vrstva, korozní třída C4, vydrží 15+ let venku. Doporučená cena/výkon.<br>
+        ❌ <em>Žlutý zinek</em> (Yellox) — venku vydrží 1-2 sezony, NEPOUŽÍVAT.<br>
+        ✅✅ <em>Nerez A2</em> — pro pohledové místa, kde chceš stříbřitou hlavičku. Cca 2× dražší než WIROX.<br>
+        ✅✅✅ <em>Nerez A4</em> — pro pobřežní oblasti / chemické prostředí. Pro ČR předražené.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Drive (pohon)</strong></td>
+      <td>
+        <strong>T-Star plus = TORX</strong> (T40 pro Ø 8, T20-T25 pro Ø 4.5-5). Nesklouzne při utahování silným šroubovákem (= dlouhé vruty potřebují velký moment, křížový pohon vždycky sklouzne a hlavu zničíš).<br>
+        ❌ <em>PH / PZ (křížový)</em> — pro Ø 8 mm vruty <strong>nepoužívat</strong>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Závit</strong></td>
+      <td>
+        <strong>Dílčí (TG / Teilgewinde)</strong> — hladký dřík (= horní díl prokluzuje pod hlavou) + závit (= drží v dolním dílu). Spax HI.Force má dílčí závit, což je správně pro stahování dvou dílů k sobě.<br>
+        <em>Plný (VG / Vollgewinde)</em> — drží po celé délce, max pevnost při tahu. Pro pergolu nadbytečné.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Špička</strong></td>
+      <td>
+        <strong>4CUT</strong> (Spax) / <strong>SmartCut</strong> (HECO) — samořezná, drtí dřevěné vlákno. U Ø 8 mm do KVH smrku bez předvrtání. <strong>Blízko hran a čel</strong> (do 5 cm od konce) předvrtat Ø 5 mm, jinak hrozí trhání podél vlákna.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Certifikace</strong></td>
+      <td>
+        <strong>ETA</strong> (European Technical Assessment) — Spax HI.Force má ETA-12/0114, HECO-Topix ETA-11/0284. Pro pergolu (= nosná konstrukce) je dobré mít — pokud někdo bude trvat na statickém posudku, máš dokumentaci připravenou.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  ⚠ <strong>Tesařské úhelníky</strong> (Simpson Strong-Tie / Domax / BMF) jsou alternativa — viditelný kov, ale
+  bez nutnosti dlouhých vrutů. Pro hobby pergolu zbytečné, pokud jsou konstrukční vruty ETA-certifikované
+  (Spax HI.Force tu certifikaci má). Estetika = vruty v dřevě jsou neviditelné po nátěru, úhelníky vidět.
+</div>
+
+<h2>Bity, vrtáky a další nářadí</h2>
+<p style="font-size: 13px; color: #666;">
+  Drobné nářadí pro šroubování a vrtání. Velikosti bitů a předvrtání jsou
+  odvozené přímo z vrutů v nákupním seznamu výše (8 mm T40 + 4.5 mm T20). Vše
+  jednou koupíš a zůstává.
+</p>
+
+<h3 style="color: #444;">Bity TORX</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th>Bit</th>
+      <th>Pro vrut</th>
+      <th class="num">Kusů</th>
+      <th class="num">Cena</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>TORX T40 × 25 mm</strong> (S2 ocel)</td>
+      <td>Spax HI.Force 8 × 160/220/240 mm (= všechny konstrukční vruty)</td>
+      <td class="num">2–3 ks</td>
+      <td class="num">~80 Kč</td>
+    </tr>
+    <tr>
+      <td><strong>TORX T20 × 25 mm</strong> (S2 ocel)</td>
+      <td>Spax 4.5 × 80 mm (= latě)</td>
+      <td class="num">1–2 ks</td>
+      <td class="num">~40 Kč</td>
+    </tr>
+  </tbody>
+</table>
+<div class="summary">
+  <strong>Proč 2–3 ks T40?</strong> Dlouhé Ø 8 mm vruty potřebují velký moment;
+  bit se v hlavě opotřebí (hrany se otupí), pak začne prokluzovat a hlavu vrutu
+  znehodnotíš. <strong>S2 ocel</strong> vydrží řádově víc než běžná chrom-vanadiová.
+  TORX hloubka 6 mm v hlavě Spax HI.Force — bit musí dosednout až na dno, ne jen
+  do kuželu.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Vrtáky</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr>
+      <th>Vrták</th>
+      <th>K čemu</th>
+      <th class="num">Kusů</th>
+      <th class="num">Cena</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Ø 5 mm × ~150 mm HSS</strong> do dřeva</td>
+      <td>Předvrtání pro Ø 8 mm konstrukční vruty <strong>v okolí čel a hran</strong>
+        (do 5 cm od konce trámu) — jinak hrozí prasknutí podél vlákna. Uvnitř KVH
+        smrku Spax HI.Force 4CUT zajde i bez předvrtání.</td>
+      <td class="num">1 ks</td>
+      <td class="num">~80 Kč</td>
+    </tr>
+    <tr>
+      <td><strong>Ø 8 mm × ~80 mm</strong> do plastu / dřeva</td>
+      <td>Otvor v polykarbonátu Wabe 76/18 — vrut Ø 4.5 mm + ~3.5 mm vůle pro
+        tepelnou dilataci PC desky (~3 mm/m). Vrtá se <strong>z vrcholu vlny</strong>
+        kolmo k desce, nízké otáčky, bez tlaku.</td>
+      <td class="num">1 ks</td>
+      <td class="num">~70 Kč</td>
+    </tr>
+    <tr>
+      <td><strong>Ø 24 mm × ~250 mm SDS-plus</strong> do betonu</td>
+      <td>Vrtání patek M20 chemickou kotvou (FIS V / Hilti HIT) — Ø díry = Ø tyče + 4 mm,
+        hloubka 10 × Ø tyče = 200 mm. Vyžaduje příklepovou vrtačku SDS-plus. Jen pokud
+        kotvíš chemicky; mechanická patka přes závitové pouzdro to nepotřebuje.</td>
+      <td class="num">1 ks</td>
+      <td class="num">~400 Kč</td>
+    </tr>
+  </tbody>
+</table>
+<div class="warn">
+  ⚠ <strong>Vrták do betonu Ø 24 mm</strong> ověř podle technického listu konkrétní
+  chemické kotvy (FIS V, Hilti HIT, …). Pravidlo Ø díry = Ø tyče + 4 mm je standard
+  Fischer / Hilti, ale každý výrobce má vlastní tabulku.
+</div>
+
+<h3 style="color: #444; margin-top: 1.4em;">Souhrn drobného nářadí k nákupu</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Kategorie</th>
+      <th class="num">Cena</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>Bity TORX T40 (2–3 ks) + T20 (1–2 ks), S2 ocel</td><td class="num">~120 Kč</td></tr>
+    <tr><td>Vrták Ø 5 mm HSS na předvrtání u čel</td><td class="num">~80 Kč</td></tr>
+    <tr><td>Vrták Ø 8 mm na polykarbonát</td><td class="num">~70 Kč</td></tr>
+    <tr><td>Vrták SDS-plus Ø 24 mm × 250 mm (jen pro chem. kotvu M20)</td><td class="num">~400 Kč</td></tr>
+    <tr style="background: #1a5f7f; color: white; font-weight: 600;">
+      <td>★ CELKEM drobné nářadí</td><td class="num">~670 Kč</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 style="color: #444; margin-top: 1.4em;">Co předpokládám máš (mimo nákupní seznam)</h3>
+<table style="font-size: 13px;">
+  <thead>
+    <tr><th>Nářadí</th><th>K čemu</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Aku vrtačka / šroubovák ≥ 60 Nm</strong></td>
+      <td>Spax HI.Force 8 × 240 mm do KVH 12×12 — kratší / slabší vrtačka utahování nezvládne.
+        Pro pohon Ø 8 mm vrutů je potřeba opravdu silný impulz; ideál 18 V s 2.0+ Ah baterií.</td>
+    </tr>
+    <tr>
+      <td><strong>Příklepová vrtačka SDS-plus</strong></td>
+      <td>Vrtání patek do betonu (jen pokud chem. kotva). Klasická aku to nezvládne — 24 mm
+        díra dlouhá 20 cm potřebuje pneumatický příklep. Půjčit v Hornbach ~300 Kč/den.</td>
+    </tr>
+    <tr>
+      <td><strong>Pokosová / kotoučová pila</strong></td>
+      <td>Řezání KVH na míru (12×12 cm = kotouč ~250 mm, řez z obou stran), mitery 45° vzpěr.</td>
+    </tr>
+    <tr>
+      <td><strong>Vodováha 80–100 cm</strong> + hadicová vodováha</td>
+      <td>Vyrovnání 10 sloupů (3 řady) do roviny.</td>
+    </tr>
+    <tr>
+      <td><strong>Metr 5 m, tužka, úhelník 50 cm</strong></td>
+      <td>Značení patek, řezů, úhlů.</td>
+    </tr>
+    <tr>
+      <td><strong>Šňůrka + olovnice</strong></td>
+      <td>Zaměření patek na terase před vrtáním.</td>
+    </tr>
+    <tr>
+      <td><strong>Stahováky / svěrky</strong> alespoň 2× 300 mm</td>
+      <td>Držet průvlak při zašroubování (sám se neudržíš).</td>
+    </tr>
+    <tr>
+      <td><strong>Žebřík ~3 m</strong></td>
+      <td>Světlá výška pod průvlakem ≈ 202 cm + střecha přesah.</td>
+    </tr>
+  </tbody>
+</table>
+
+</div><!-- /tab-srouby -->
+
+</main>
+
+<script>
+// =========================================================================
+// Plocha + spotřeba lazury — dynamicky z parts_list.json
+// =========================================================================
+
+const PROFILE_DIMS = {
+  "12×12 cm": { w: 12, h: 12 },
+  "8×16 cm":  { w: 8,  h: 16 },
+  "4×6 cm":   { w: 4,  h: 6 },
+  "6×8 cm":   { w: 6,  h: 8 },
+  "10×10 cm": { w: 10, h: 10 },
+};
+
+async function loadAreaTable() {
+  try {
+    const r = await fetch('parts_list.json?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error('parts_list.json: ' + r.status);
+    const j = await r.json();
+    const groups = j.groups || (j.variants && j.variants[0] && j.variants[0].groups) || [];
+
+    let totalArea = 0;
+    let rows = '';
+    for (const g of groups) {
+      const dims = PROFILE_DIMS[g.profile];
+      if (!dims) continue;
+      const perim = 2 * (dims.w + dims.h);
+      const totalLen = g.summary.total_required_cm;
+      const nPieces = g.summary.total_pieces;
+      const sideAreaCm2 = totalLen * perim;
+      const endCapsCm2 = nPieces * 2 * dims.w * dims.h;
+      const totalCm2 = sideAreaCm2 + endCapsCm2;
+      const m2 = totalCm2 / 10000;
+      totalArea += m2;
+      rows += `<tr>
+        <td>${g.profile}</td>
+        <td class="num">${perim}</td>
+        <td class="num">${totalLen.toFixed(1)}</td>
+        <td class="num">${(sideAreaCm2/10000).toFixed(2)}</td>
+        <td class="num">${(endCapsCm2/10000).toFixed(2)}</td>
+        <td class="num"><strong>${m2.toFixed(2)}</strong></td>
+      </tr>`;
+    }
+    rows += `<tr class="total">
+      <td colspan="5">CELKEM</td>
+      <td class="num">${totalArea.toFixed(2)} m²</td>
+    </tr>`;
+    document.getElementById('areaBody').innerHTML = rows;
+    document.getElementById('totalArea').innerHTML =
+      `<strong>${totalArea.toFixed(1)} m²</strong> (boční plochy 50.3 m² + čelní řezy ~0.9 m²)`;
+
+    fillPaintTable(totalArea);
+  } catch (e) {
+    document.getElementById('areaBody').innerHTML =
+      `<tr><td colspan="6" style="color:#cf222e;">Chyba: ${e.message}</td></tr>`;
+  }
+}
+
+function fillPaintTable(area) {
+  const yield_m2_per_L = 10;
+  const price_per_can = 1230.60;
+  const can_L = 2.5;
+  const scenarios = [
+    { name: '2 vrstvy (jen pro tmavé pigmentované odstíny bez plné expozice)', coats: 2, badge: '' },
+    { name: '3 vrstvy (TDS doporučení pro pergolu — přímé zvětrávání + světlé/střední barvy)', coats: 3, badge: '★ TDS' },
+  ];
+  let html = '';
+  for (const s of scenarios) {
+    const L = area * s.coats / yield_m2_per_L;
+    const cans = Math.ceil(L / can_L);
+    const totalL = cans * can_L;
+    const price = cans * price_per_can;
+    const star = s.badge ? `<span style="color:#1a7f37; margin-right:4px;">${s.badge}</span>` : '';
+    html += `<tr>
+      <td>${star}${s.name}</td>
+      <td class="num">${(area * s.coats).toFixed(1)}</td>
+      <td class="num">${L.toFixed(1)} L</td>
+      <td class="num"><strong>${cans} ks</strong> (${totalL} L)</td>
+      <td class="num">${price.toLocaleString('cs-CZ', {maximumFractionDigits: 0})} Kč</td>
+    </tr>`;
+  }
+  document.getElementById('paintBody').innerHTML = html;
+  // Vyplnit i druhou tabulku (souhrn nákupu) podle skutečné plochy.
+  fillShoppingList(area);
+}
+
+function fillShoppingList(area) {
+  const yield_m2_per_L = 10;
+  // Cena Aqua 3in1 Lasur FS 2.5 L na drevosmutny.cz (květen 2026).
+  const price_aqua_3in1_2_5L = 1230.60;
+  // Cena Pullex Aqua-IG 5357 — barvyadler.cz: 1 339 Kč / 2.5 L, 434 Kč / 0.75 L.
+  const price_ig_2_5L = 1339;
+  const price_ig_0_75L = 434;
+  // Nitro-Verdünnung 80001 — orientačně, není u drevosmutny.cz; lakyadler ~250 Kč / 0.5 L.
+  const price_nitro_0_5L = 250;
+
+  // 3 vrstvy Aqua 3in1 pro pergolu (TDS doporučení).
+  const L_aqua = area * 3 / yield_m2_per_L;     // = 15.4 L pro 51.15 m²
+  const cans_aqua = Math.ceil(L_aqua / 2.5);     // = 7 ks
+  const cost_aqua = cans_aqua * price_aqua_3in1_2_5L;
+
+  // Impregnace 1 vrstva = ~5.1 L → 2×2.5 + 1×0.75 = 5.75 L (přesně, s minimální rezervou).
+  const L_ig = area / yield_m2_per_L;            // = 5.1 L
+  const ig_2_5_cans = Math.floor(L_ig / 2.5);    // = 2
+  const ig_remaining = L_ig - ig_2_5_cans * 2.5; // = 0.1 L → 1× 0.75 L stačí
+  const ig_0_75_cans = ig_remaining > 0 ? 1 : 0;
+  const ig_total_L = ig_2_5_cans * 2.5 + ig_0_75_cans * 0.75;
+  const cost_ig = ig_2_5_cans * price_ig_2_5L + ig_0_75_cans * price_ig_0_75L;
+
+  // Total bez impregnace
+  const total_without = cost_aqua + price_nitro_0_5L;
+  // Total s impregnací
+  const total_with = cost_aqua + cost_ig + price_nitro_0_5L;
+
+  const fmt = (n) => n.toLocaleString('cs-CZ', {maximumFractionDigits: 0});
+
+  document.getElementById('shoppingBody').innerHTML = `
+    <tr>
+      <td><strong>Pullex Aqua 3in1-Lasur FS</strong> 2.5 L<br>
+        <span style="font-size: 12px; color: #777;">3 vrstvy × ${area.toFixed(1)} m² ÷ 10 m²/L = ${L_aqua.toFixed(1)} L</span></td>
+      <td class="num">${cans_aqua} ks</td>
+      <td class="num">${fmt(price_aqua_3in1_2_5L)} Kč</td>
+      <td class="num"><strong>${fmt(cost_aqua)} Kč</strong></td>
+    </tr>
+    <tr style="background: #fff8e1;">
+      <td><strong>Pullex Aqua-IG 5357</strong> impregnace (volitelně)<br>
+        <span style="font-size: 12px; color: #777;">1 vrstva × ${area.toFixed(1)} m² ÷ 10 m²/L = ${L_ig.toFixed(1)} L → ${ig_2_5_cans}× 2.5 L + ${ig_0_75_cans}× 0.75 L = ${ig_total_L.toFixed(2)} L</span></td>
+      <td class="num">${ig_2_5_cans} + ${ig_0_75_cans} ks</td>
+      <td class="num">${fmt(price_ig_2_5L)} / ${fmt(price_ig_0_75L)} Kč</td>
+      <td class="num"><strong>${fmt(cost_ig)} Kč</strong></td>
+    </tr>
+    <tr>
+      <td><strong>ADLER Nitro-Verdünnung 80001</strong> 0.5 L<br>
+        <span style="font-size: 12px; color: #777;">na pryskyřičná místa a sukové oči</span></td>
+      <td class="num">1 ks</td>
+      <td class="num">${fmt(price_nitro_0_5L)} Kč</td>
+      <td class="num"><strong>${fmt(price_nitro_0_5L)} Kč</strong></td>
+    </tr>
+    <tr style="background: #eef5fb; font-size: 15px;">
+      <td colspan="3"><strong>Mezisoučet bez impregnace</strong> (3 vrstvy Aqua 3in1 + Nitro)</td>
+      <td class="num"><strong>${fmt(total_without)} Kč</strong></td>
+    </tr>
+    <tr style="background: #1a5f7f; color: white; font-size: 15px;">
+      <td colspan="3"><strong>★ DOPORUČENÝ NÁKUP s impregnací (TDS max ochrana)</strong></td>
+      <td class="num"><strong>${fmt(total_with)} Kč</strong></td>
+    </tr>
+  `;
+}
+
+// =========================================================================
+// Vzorník barvy dřeva + slider žluté — localStorage + 'storage' event do vieweru
+// =========================================================================
+
+const WOOD_PRESETS = [
+  // Přírodní dřeviny (světlá → tmavá)
+  { name: 'Bezbarvý (KVH smrk)', hex: 0xd9b078, note: 'syrové dřevo' },
+  { name: 'Borovice',  hex: 0xc88f4d, note: 'Kiefer' },
+  { name: 'Medová',    hex: 0xcb8b3e, note: 'Honig — teplá zlatá' },
+  { name: 'Modřín',    hex: 0xa86833, note: 'Lärche' },
+  { name: 'Teak',      hex: 0xb07a3f, note: 'teplý střední' },
+  { name: 'Dub',       hex: 0x8c5c33, note: 'Eiche (výchozí)' },
+  { name: 'Tabák',     hex: 0x7a4a26, note: 'Tabak — tmavě hnědá' },
+  { name: 'Mahagon',   hex: 0x6e3b24, note: 'Mahagoni — červenohnědá' },
+  { name: 'Ořech',     hex: 0x4d2f1c, note: 'Nuss' },
+  { name: 'Palisandr', hex: 0x2e1810, note: 'Palisander' },
+  // Zvětralé / šedé
+  { name: 'Stříbrná patina', hex: 0x9a948a, note: 'lehce zešedlé' },
+  { name: 'Zešedlé KVH',     hex: 0x8e887d, note: 'po ~5 letech bez UV pigmentu' },
+  { name: 'Šedá lazura',     hex: 0x6f6862, note: 'Grau — krycí šedá' },
+  // Krycí / mimo dřevo (pro doladění)
+  { name: 'Antracit',   hex: 0x3a3a3e, note: 'tmavě šedá (krycí)' },
+  { name: 'Olivová',    hex: 0x5f6147, note: 'zelenošedá (krycí)' },
+  { name: 'Krémová',    hex: 0xe6ddc9, note: 'světlá krycí' },
+];
+const DEFAULT_WOOD_HEX = 0x8c5c33;    // = Dub, výchozí barva v pergole
+const DEFAULT_YELLOW_LIGHTNESS = 50;  // 0..100, 50 = výchozí 0xf5d140
+
+const LS_WOOD = 'pergola_wood_color_hex';
+const LS_WOOD_NAME = 'pergola_wood_color_name';
+const LS_YELLOW = 'pergola_yellow_lightness';
+
+function getStoredWoodHex() {
+  const v = localStorage.getItem(LS_WOOD);
+  return v ? parseInt(v, 16) : DEFAULT_WOOD_HEX;
+}
+function getStoredYellowL() {
+  const v = localStorage.getItem(LS_YELLOW);
+  return v !== null ? parseInt(v, 10) : DEFAULT_YELLOW_LIGHTNESS;
+}
+
+function setStoredWood(hex, name) {
+  localStorage.setItem(LS_WOOD, hex.toString(16).padStart(6, '0'));
+  localStorage.setItem(LS_WOOD_NAME, name);
+  // Same-tab listener nepřijme 'storage' event, takže vyšleme custom signál
+  // přes BroadcastChannel pro případ, že je viewer otevřený v jiném tabu.
+  try { new BroadcastChannel('pergola_settings').postMessage({type: 'wood', hex, name}); } catch(e) {}
+}
+function setStoredYellow(l) {
+  localStorage.setItem(LS_YELLOW, l.toString());
+  try { new BroadcastChannel('pergola_settings').postMessage({type: 'yellow', l}); } catch(e) {}
+}
+
+function renderSwatches() {
+  const current = getStoredWoodHex();
+  const html = WOOD_PRESETS.map(p => {
+    const hex = '#' + p.hex.toString(16).padStart(6, '0');
+    const active = (p.hex === current) ? ' active' : '';
+    return `<div class="swatch${active}" data-hex="${p.hex.toString(16)}" data-name="${p.name}">
+      <div class="chip" style="background: ${hex};"></div>
+      <div class="name">${p.name}</div>
+      <div class="hex">${hex}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('woodSwatches').innerHTML = html;
+  for (const sw of document.querySelectorAll('.swatch')) {
+    sw.addEventListener('click', () => {
+      const hex = parseInt(sw.dataset.hex, 16);
+      const name = sw.dataset.name;
+      setStoredWood(hex, name);
+      const ci = document.getElementById('woodCustom');
+      if (ci) ci.value = '#' + hex.toString(16).padStart(6, '0');
+      syncHslFromHex(hex);
+      for (const s of document.querySelectorAll('.swatch')) s.classList.remove('active');
+      sw.classList.add('active');
+    });
+  }
+}
+
+// HSL pro žlutou: base #f5d140 = h≈48°, s≈89%, l≈60.6%.
+// Slider 0..100 → lightness 40..90% (lineárně, 50 = 60.6).
+function yellowHexForL(slider) {
+  const l = 40 + (slider / 100) * 50;  // 40..90
+  const hex = hslToHex(48, 89, l);
+  return { hex, l };
+}
+function hslToHex(h, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = n => {
+    const c = l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return Math.round(255 * c).toString(16).padStart(2, '0');
+  };
+  return '#' + f(0) + f(8) + f(4);
+}
+
+function setupYellow() {
+  const slider = document.getElementById('yellowSlider');
+  const preview = document.getElementById('yellowPreview');
+  const hexLabel = document.getElementById('yellowHex');
+  slider.value = getStoredYellowL();
+  const update = (v) => {
+    const { hex, l } = yellowHexForL(v);
+    preview.style.background = hex;
+    hexLabel.textContent = hex;
+  };
+  update(slider.value);
+  slider.addEventListener('input', e => {
+    update(e.target.value);
+    setStoredYellow(parseInt(e.target.value, 10));
+  });
+}
+
+function setupCustomWood() {
+  const input = document.getElementById('woodCustom');
+  if (!input) return;
+  input.value = '#' + getStoredWoodHex().toString(16).padStart(6, '0');
+  input.addEventListener('input', e => {
+    const hex = parseInt(e.target.value.slice(1), 16);
+    setStoredWood(hex, 'Vlastní');
+    syncHslFromHex(hex);
+    for (const s of document.querySelectorAll('.swatch')) s.classList.remove('active');
+  });
+}
+
+// Jemné doladění přes HSL posuvníky — stejná matematika jako žlutá (hslToHex).
+function hexToHsl(hex) {
+  const r = ((hex >> 16) & 255) / 255, g = ((hex >> 8) & 255) / 255, b = (hex & 255) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0, s = 0; const l = (max + min) / 2;
+  if (d !== 0) {
+    s = d / (1 - Math.abs(2 * l - 1));
+    if (max === r) h = ((g - b) / d) % 6;
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h *= 60; if (h < 0) h += 360;
+  }
+  return { h: Math.round(h), s: Math.round(s * 100), l: Math.round(l * 100) };
+}
+function currentHslHex() {
+  const h = +document.getElementById('hslH').value;
+  const s = +document.getElementById('hslS').value;
+  const l = +document.getElementById('hslL').value;
+  return hslToHex(h, s, l);  // '#rrggbb'
+}
+function updateHslChip() {
+  const hx = currentHslHex();
+  document.getElementById('hslChip').style.background = hx;
+  document.getElementById('hslHex').textContent = hx;
+}
+function syncHslFromHex(hex) {
+  const H = document.getElementById('hslH'), S = document.getElementById('hslS'), L = document.getElementById('hslL');
+  if (!H || !S || !L) return;
+  const c = hexToHsl(hex);
+  H.value = c.h; S.value = c.s; L.value = c.l;
+  updateHslChip();
+}
+function setupHslTune() {
+  syncHslFromHex(getStoredWoodHex());
+  for (const id of ['hslH', 'hslS', 'hslL']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener('input', () => {
+      const hx = currentHslHex();
+      updateHslChip();
+      setStoredWood(parseInt(hx.slice(1), 16), 'Vlastní (HSL)');
+      const ci = document.getElementById('woodCustom');
+      if (ci) ci.value = hx;
+      for (const sw of document.querySelectorAll('.swatch')) sw.classList.remove('active');
+    });
+  }
+}
+
+function resetAll() {
+  localStorage.removeItem(LS_WOOD);
+  localStorage.removeItem(LS_WOOD_NAME);
+  localStorage.removeItem(LS_YELLOW);
+  try { new BroadcastChannel('pergola_settings').postMessage({type: 'reset'}); } catch(e) {}
+  document.getElementById('yellowSlider').value = DEFAULT_YELLOW_LIGHTNESS;
+  document.getElementById('yellowSlider').dispatchEvent(new Event('input'));
+  const ci = document.getElementById('woodCustom');
+  if (ci) ci.value = '#' + DEFAULT_WOOD_HEX.toString(16).padStart(6, '0');
+  syncHslFromHex(DEFAULT_WOOD_HEX);
+  renderSwatches();
+}
+
+loadAreaTable();
+renderSwatches();
+setupYellow();
+setupCustomWood();
+setupHslTune();
+document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+// Záložkové přepínače — Nátěr a barva / Šrouby
+for (const btn of document.querySelectorAll('.vartab')) {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.tab;
+    for (const b of document.querySelectorAll('.vartab')) b.classList.toggle('active', b === btn);
+    for (const c of document.querySelectorAll('.tab-content')) c.classList.toggle('active', c.id === id);
+    // Scroll na začátek záložky pro lepší UX při přepnutí
+    window.scrollTo({ top: document.querySelector('.vartabs').offsetTop - 60, behavior: 'smooth' });
+  });
+}
+</script>
+</body>
+</html>

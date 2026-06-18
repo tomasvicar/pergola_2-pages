@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — přehled</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+  main {
+    max-width: 720px; margin: 40px auto; padding: 0 16px;
+  }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  .lead { color: #555; font-size: 15px; margin: 0 0 28px; }
+  ul.pages { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+  ul.pages li a {
+    display: block; text-decoration: none; color: inherit;
+    background: white; border: 1px solid #ddd; border-radius: 8px;
+    padding: 16px 18px; transition: border-color .15s, box-shadow .15s;
+  }
+  ul.pages li a:hover {
+    border-color: #1a5f7f;
+    box-shadow: 0 2px 6px rgba(26,95,127,0.10);
+  }
+  ul.pages .title { font-size: 17px; font-weight: 600; color: #1a5f7f; }
+  ul.pages .desc { color: #666; font-size: 14px; margin-top: 4px; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+</nav>
+<main>
+  <h1>Pergola — přehled</h1>
+  <p class="lead">Dřevěná samostatně stojící pergola u domu, zastřešená polykarbonátem Wabe&nbsp;76/18.</p>
+  <ul class="pages">
+    <li><a href="realizace.html">
+      <div class="title">Realizace + nátěr</div>
+      <div class="desc">Nákupní seznam vrutů (Spax HI.Force 8 mm T40 + 4.5 mm T20), lazura Adler Pullex Aqua 3in1, štětce, bity, vrtáky, drobnosti.</div>
+    </a></li>
+    <li><a href="viewer.html">
+      <div class="title">3D model</div>
+      <div class="desc">Interaktivní three.js viewer — orbit, pan, zoom; jednotlivé díly se dají skrýt.</div>
+    </a></li>
+    <li><a href="parts.html">
+      <div class="title">Seznam dřeva</div>
+      <div class="desc">Tabulka všech profilů a délek — varianty pro objednání řeziva.</div>
+    </a></li>
+    <li><a href="statika.html">
+      <div class="title">Statika</div>
+      <div class="desc">Orientační odhad zatížení a průhybů jednotlivých prvků.</div>
+    </a></li>
+    <li><a href="konstrukce.html">
+      <div class="title">Konstrukce</div>
+      <div class="desc">Postup stavby krok za krokem — vyznačení patek, montáž, …</div>
+    </a></li>
+    <li><a href="krytina.html">
+      <div class="title">Krytina</div>
+      <div class="desc">Nákup polykarbonátu Wabe 76/18 — kolik desek koupit a jaké příslušenství (podložky, vruty, těsnění).</div>
+    </a></li>
+    <li><a href="okap.html">
+      <div class="title">Okap</div>
+      <div class="desc">Odvodnění střechy — jaký žlab a svod vybrat a součásti z buildex.cz.</div>
+    </a></li>
+    <li><a href="expert.html">
+      <div class="title">Otázky odborníkovi</div>
+      <div class="desc">Otevřené body, na které je potřeba sehnat konzultaci.</div>
+    </a></li>
+  </ul>
+</main>
+</body>
+</html>

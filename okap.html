@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — okap (odvodnění střechy)</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5em 1em 4em; }
+  h1 { margin: 0.3em 0 0.2em; font-size: 1.6em; }
+  .lead { color: #555; margin-bottom: 1.2em; line-height: 1.5; }
+  h2 {
+    margin-top: 1.6em; padding-bottom: 0.3em;
+    border-bottom: 2px solid #1a5f7f;
+    font-size: 1.2em;
+  }
+  h3 { margin-top: 1.2em; color: #555; font-size: 1em; }
+  p { line-height: 1.55; }
+
+  .info {
+    background: #eef5fb; border-left: 4px solid #1a5f7f;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; line-height: 1.5;
+  }
+  .info strong { color: #1a5f7f; }
+  .warnbox {
+    background: #fff8e1; border-left: 4px solid #b08200;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; color: #5a4a00; line-height: 1.5;
+  }
+  .warnbox ul, .info ul { margin: 0.4em 0 0 1.2em; }
+
+  table.t { border-collapse: collapse; width: 100%; margin: 0.4em 0 0.8em; background: white; border-radius: 6px; overflow: hidden; font-size: 13px; }
+  table.t th, table.t td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  table.t th { background: #1a5f7f; color: white; text-align: left; font-weight: 600; font-size: 12px; }
+  table.t th.num, table.t td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t .label { font-weight: 700; }
+  table.t tr.total td { background: #eef5fb; font-weight: 700; }
+  table.t tr.opt td { color: #777; font-style: italic; }
+  a.ext { color: #1a5f7f; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html" class="active">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+  <span class="spacer"></span>
+</nav>
+
+<main>
+  <h1>Okap — odvodnění střechy pergoly</h1>
+  <p class="lead">
+    Střecha spáduje (5,76°) <strong>od domu k přední hraně</strong>, takže veškerá
+    voda steče na <strong>jeden přední žlab</strong> po celé šířce (~7,6 m) a jedním
+    svodem dolů. Vybráno v <strong>pozinku</strong>, ať ladí s okapem domu (ten je
+    půlkulatý pozink). Háky jdou <strong>na krovy</strong>. Komponenty níže jsou z
+    <a class="ext" href="https://www.buildex.cz/okapove-systemy" target="_blank" rel="noopener">okapových systémů buildex.cz</a>.
+    Ceny jsou <strong>orientační odhad</strong> — ověř u dodavatele.
+  </p>
+
+  <!-- ===================== DIMENZOVÁNÍ ===================== -->
+  <h2>Jaká velikost — pro ~30 m²</h2>
+  <p>
+    Odvodňovaná plocha = krytá střecha ~7,58 m × ~4,0 m (vodorovný průmět) ≈
+    <strong>30 m²</strong>, vše do jednoho žlabu. Podle
+    <a class="ext" href="https://www.buildex.cz/jak-vybrat-spravny-okap" target="_blank" rel="noopener">tabulky buildexu</a>:
+  </p>
+  <table class="t">
+    <thead><tr><th>Systém</th><th class="num">žlab / svod</th><th class="num">do plochy</th><th>vhodnost</th></tr></thead>
+    <tbody>
+      <tr><td>malý</td><td class="num">75/63 mm</td><td class="num">~25 m²</td><td>na hraně — pro 30 m² <strong>nedoporučuju</strong></td></tr>
+      <tr style="background:#f5fcf5;"><td class="label">✓ střední</td><td class="num">≈ 250/80 mm<br>(plast ~125/90)</td><td class="num">~40 m²</td><td><strong>doporučeno</strong> — rezerva pro přívalový déšť i ucpání listím</td></tr>
+      <tr><td>velký</td><td class="num">280/100 mm</td><td class="num">~90 m²</td><td>zbytečně předimenzované</td></tr>
+    </tbody>
+  </table>
+  <div class="info">
+    <strong>Spád žlabu:</strong> ~0,5 % (5 mm na 1 m) směrem ke kotlíku/svodu —
+    háky postupně o trochu níž. <strong>Jeden svod stačí</strong> (pravidlo: 1 svod
+    na ~15 m žlabu; náš žlab má ~7,6 m). Háky <strong>na krovy (krokve)</strong> —
+    1 na každý krov, takže rozteč ~99 cm (= rozteč krovů). To je na horní hranici
+    doporučených ~90 cm, ale tuhý pozinkový žlab to unese.
+  </div>
+
+  <!-- ===================== MATERIÁL ===================== -->
+  <h2>Materiál — zvolen pozink</h2>
+  <table class="t">
+    <thead><tr><th>Materiál</th><th>Výhody</th><th>Zvážit</th></tr></thead>
+    <tbody>
+      <tr style="background:#f5fcf5;">
+        <td class="label">✓ Pozink / plech</td>
+        <td>Trvanlivější, pevnější, <strong>ladí s okapem domu</strong> (ten je půlkulatý pozink). Vzhledově konzistentní.</td>
+        <td>Dražší než plast, řezané hrany ošetřit proti rzi, o něco těžší montáž.</td>
+      </tr>
+      <tr>
+        <td class="label">Plast (PVC) — Gutta</td>
+        <td>Levnější, nerezaví, lehký, nejsnazší montáž.</td>
+        <td>Jiný vzhled než pozinkový okap domu — k tomuto domu se nehodí.</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="info"><strong>Zvoleno: pozink, velikost 250/80</strong> — kvůli sladění s okapem domu. Háky <strong>krokvové (dlouhé)</strong> na krovy.</p>
+
+  <!-- ===================== NÁKUPNÍ SEZNAM ===================== -->
+  <h2>Nákupní seznam (souhrn)</h2>
+  <table class="t">
+    <thead>
+      <tr><th>Položka</th><th>Spec / k čemu</th><th class="num">Počet</th><th class="num">~Cena</th><th>Koupit</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Žlab půlkulatý pozink</td>
+        <td>250/80; 2 kusy po ~4 m na šířku ~7,6 m</td>
+        <td class="num">2 ks (~8 m)</td><td class="num">~2 000 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-zlaby-2" target="_blank" rel="noopener">Žlaby →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Spojka žlabu pozink</td>
+        <td>spojení obou kusů žlabu</td>
+        <td class="num">1 ks</td><td class="num">~60 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-spojky" target="_blank" rel="noopener">Spojky →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Hák krokvový (dlouhý) pozink</td>
+        <td>na krovy — 1 na každý krov (rozteč ~99 cm)</td>
+        <td class="num">8 ks</td><td class="num">~550 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-haky" target="_blank" rel="noopener">Háky →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Čelo žlabu (L + P)</td>
+        <td>uzavření obou konců žlabu</td>
+        <td class="num">2 ks</td><td class="num">~80 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-cela" target="_blank" rel="noopener">Čela →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Odpadní kotlík / chrlič</td>
+        <td>napojení žlab → svod</td>
+        <td class="num">1 ks</td><td class="num">~120 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-chrlice" target="_blank" rel="noopener">Chrliče →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Svodová roura</td>
+        <td>podél předního sloupu k zemi (~2 m)</td>
+        <td class="num">~2 m</td><td class="num">~250 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-svody" target="_blank" rel="noopener">Svody →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Koleno svodu</td>
+        <td>odsazení od kotlíku ke sloupu („labutí krk")</td>
+        <td class="num">2 ks</td><td class="num">~140 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-kolena-svodu" target="_blank" rel="noopener">Kolena →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Objímka svodu</td>
+        <td>uchycení svodu na přední sloup</td>
+        <td class="num">2 ks</td><td class="num">~80 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/okapove-objimky" target="_blank" rel="noopener">Objímky →</a></td>
+      </tr>
+      <tr class="opt">
+        <td class="label">Lapač listí / gajgr (volitelné)</td>
+        <td>na patě svodu, proti ucpání</td>
+        <td class="num">1 ks</td><td class="num">~150 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/gajgry" target="_blank" rel="noopener">Gajgry →</a></td>
+      </tr>
+      <tr class="total">
+        <td colspan="3">Okap celkem (odhad, bez volitelných)</td><td class="num">~3 300 Kč</td><td></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="info">
+    Ceny jsou hrubý odhad (pozink je dražší než plast). Pro přesnou cenu klikni na
+    odkazy a vyber <strong>jednu pozinkovou řadu 250/80</strong> — všechny díly
+    (žlab, háky, čela, kotlík, svod, kolena, objímky) musí být <strong>stejný
+    systém a velikost</strong>, aby do sebe pasovaly.
+  </p>
+
+  <!-- ===================== MONTÁŽ ===================== -->
+  <h2>Montáž — pár pravidel</h2>
+  <ul>
+    <li><strong>Háky krokvové (dlouhé)</strong> přišroubuj shora / z boku na <strong>přední konce krovů</strong> — 1 na každý z 8 krovů. Ohni je tak, aby přední hrana krytiny <strong>kapala do žlabu</strong> (žlab ~1/3 šířky pod hranu desky).</li>
+    <li><strong>Spád ~5 mm/m</strong> ke straně, kde bude svod — háky postupně o kousek níž (natáhni provázek).</li>
+    <li><strong>Kotlík</strong> umísti u <strong>předního rohového sloupu</strong>, svod veď dolů podél sloupu (2 kolena na odsazení), 2 objímky na sloup.</li>
+    <li>Spodek svodu nech ústit na <strong>dlažbu/vsak</strong> nebo do okapového kotlíku v zemi — voda nesmí podmáčet patky.</li>
+    <li>Konce žlabu uzavři <strong>čely</strong>. Pozn.: krytina je o ~30 cm na každé straně širší než krajní krovy (boční partial desky), takže žlab buď <strong>ukonči u krajního krovu</strong> (rohy partial desek pak trochu přetečou), nebo ho nech <strong>~30 cm přesahovat</strong> za poslední hák — tuhý pozink to unese.</li>
+  </ul>
+
+  <!-- ===================== ODKAZY ===================== -->
+  <h2>Odkazy</h2>
+  <ul>
+    <li>Okapové systémy (přehled): <a class="ext" href="https://www.buildex.cz/okapove-systemy" target="_blank" rel="noopener">buildex.cz/okapove-systemy</a></li>
+    <li>Jak vybrat správný okap (dimenzování): <a class="ext" href="https://www.buildex.cz/jak-vybrat-spravny-okap" target="_blank" rel="noopener">buildex.cz/jak-vybrat-spravny-okap</a></li>
+    <li>Příslušenství k okapům: <a class="ext" href="https://www.buildex.cz/prislusenstvi-pro-okapy" target="_blank" rel="noopener">buildex.cz/prislusenstvi-pro-okapy</a></li>
+  </ul>
+</main>
+</body>
+</html>

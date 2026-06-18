@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — půdorysy nábytku</title>
+<style>
+  html,body{{margin:0;height:100%;background:#f0f0f0;font-family:system-ui,sans-serif;color:#333;}}
+  .topnav{{position:fixed;top:0;left:0;right:0;z-index:5;background:rgba(255,255,255,.95);
+    border-bottom:1px solid #ddd;padding:6px 12px;display:flex;gap:4px;align-items:center;
+    box-shadow:0 1px 2px rgba(0,0,0,.04);font-size:13px;}}
+  .topnav a{{text-decoration:none;padding:4px 12px;border-radius:4px;color:#555;}}
+  .topnav a.active{{background:#1a5f7f;color:#fff;}}
+  .topnav a:hover:not(.active){{background:#eee;}}
+  .wrap{{display:flex;gap:18px;padding:54px 18px 18px;max-width:1500px;margin:0 auto;}}
+  .side{{flex:0 0 250px;}}
+  .side h1{{font-size:16px;margin:4px 0 10px;}}
+  .vlist{{list-style:none;margin:0;padding:0;}}
+  .vlist li{{padding:9px 11px;margin:3px 0;border-radius:7px;cursor:pointer;font-size:13.5px;
+    background:#fff;border:1px solid #e3e3e3;transition:all .12s;}}
+  .vlist li:hover{{background:#eef4f7;}}
+  .vlist li.active{{background:#1a5f7f;color:#fff;border-color:#1a5f7f;}}
+  .main{{flex:1;min-width:0;}}
+  .plan{{background:#fff;border:1px solid #e3e3e3;border-radius:10px;padding:8px;
+    box-shadow:0 1px 4px rgba(0,0,0,.05);}}
+  .plan img{{width:100%;height:auto;display:block;}}
+  .meta{{margin-top:14px;background:#fff;border:1px solid #e3e3e3;border-radius:10px;padding:14px 18px;}}
+  .meta h2{{margin:0 0 6px;font-size:18px;color:#1a5f7f;}}
+  .meta p{{margin:0 0 10px;line-height:1.5;}}
+  .meta ul{{margin:0;padding-left:18px;line-height:1.6;font-size:13.5px;color:#444;}}
+  .legend{{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;font-size:12.5px;color:#555;}}
+  .legend span{{display:inline-flex;align-items:center;gap:6px;}}
+  .sw{{width:16px;height:12px;border-radius:3px;border:1px solid #0003;display:inline-block;}}
+  .note{{font-size:12px;color:#888;margin-top:10px;line-height:1.5;}}
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html" class="active">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+</nav>
+<div class="wrap">
+  <div class="side">
+    <h1>Půdorysy nábytku</h1>
+    <ul class="vlist" id="vlist"></ul>
+    <div class="legend">
+      <span><i class="sw" style="background:#c79a6b"></i>stůl / dřevo</span>
+      <span><i class="sw" style="background:#aebfcf"></i>pohovka / křeslo</span>
+      <span><i class="sw" style="background:#dcc096"></i>židle</span>
+      <span><i class="sw" style="background:#565b61"></i>gril / kuchyně</span>
+      <span><i class="sw" style="background:#7faa6b"></i>zeleň</span>
+      <span><i class="sw" style="background:#ffe9a8"></i>průchozí zóna</span>
+    </div>
+    <div class="note">Pohled shora. Dům (zadní stěna se 2 vchody) je nahoře, zahrada
+      dole. Pravý přední roh = hlavní vstup mezi sloupy (žlutě). Tmavé čtverečky = sloupy.</div>
+  </div>
+  <div class="main">
+    <div class="plan"><img id="planimg" alt="půdorys"></div>
+    <div class="meta">
+      <h2 id="mname"></h2>
+      <p id="mdesc"></p>
+      <ul id="mergo"></ul>
+    </div>
+  </div>
+</div>
+<script>
+const V = [{"id": "v01-jidelni-klasika", "name": "1 · Jídelní klasika", "desc": "Velký jídelní stůl pro 8 jako srdce prostoru, klidný lounge kout (2 křesla + stolek) v levém předním rohu, gril u levé strany, úzká konzola v pravém pruhu. Vstup vpravo vepředu i cesta k hlavním dveřím volné.", "ergo": ["Stůl 170×90 s ~75 cm na odsun židlí ze všech stran.", "Lounge mimo jídelní provoz, v levém předním rohu.", "Gril u levé strany — obsluha čelem do prostoru.", "Pravá polovina = volný vstup mezi sloupy a cesta k hlavním dveřím."]}, {"id": "v02-lounge-jidelna", "name": "2 · Lounge & jídelna", "desc": "Rohová pohovka v levém předním rohu se závěsným křeslem jako obývací zóna, menší jídelní stůl pro 6 blíž k domu, gril v pravém pruhu u vstupu.", "ergo": ["Rohová pohovka + závěsné křeslo = posezení pro 5–6, otevřené ke středu.", "Jídelní stůl pro 6 blízko domu — krátký servis hlavními dveřmi.", "Gril u pravého okraje, kouř odchází otevřenou stranou ven.", "Levý vchod má volný pruh; vstup vpravo vepředu zachován."]}, {"id": "v03-velka-rodina", "name": "3 · Velká rodina", "desc": "Extra dlouhý stůl pro 10 orientovaný do hloubky (židle po stranách), gril na zadní stěně pro snadný servis, lounge kout v levém předním rohu.", "ergo": ["Dlouhý stůl 95×170 do hloubky — 8 židlí po stranách + 2 čela = 10 míst.", "Stůl zády ke stěně volný → gril hned za ním, krátká cesta jídla.", "Lounge 2 křesla v levém rohu pro odpočinek po jídle.", "Cesta od hlavního vchodu i vstup vpravo vepředu volné."]}, {"id": "v04-wellness-relax", "name": "4 · Wellness & relax", "desc": "Posezení kolem plynového ohniště (pohovka + 2 křesla), dvě lehátka u levé strany, gril na zadní stěně. Relaxní resortní atmosféra.", "ergo": ["Ohniště obklopené pohovkou a 2 křesly, rozestup ~70 cm od mísy.", "2 lehátka 70×190 vedle sebe u levé strany s mezerou mezi nimi.", "Gril na zadní stěně za pohovkou, mimo cesty.", "Vstup vpravo vepředu i oba vchody volné."]}, {"id": "v05-grill-bar", "name": "5 · Grill & bar", "desc": "Venkovní kuchyně přes zadní stěnu, velký gril v pravém pruhu, barový pult ke stání uprostřed a rohová pohovka v levém rohu. Pro vaření a párty.", "ergo": ["Kuchyňská linka u stěny + gril u kraje = pohodlné vaření.", "Barový pult se stoličkami odděluje vaření od loungingu.", "Rohová pohovka v levém rohu pro posezení mimo provoz.", "Obsluha grilu má volno; vstup vpravo vepředu zůstává průchozí."]}, {"id": "v06-kompaktni", "name": "6 · Kompaktní minimal", "desc": "Minimum kusů s velkorysým volným prostorem: stůl pro 6, dvě křesla v levém rohu, gril u levé strany. Hodně volné podlahy, snadný úklid.", "ergo": ["Jen nezbytné prvky — vzdušné, levnější, snadná údržba.", "Stůl pro 6 uprostřed-vlevo, mimo vstupní zónu.", "Dvě křesla jako čtecí/kávový kout v levém rohu.", "Velká část podlahy volná; oba vchody i vstup vepředu průchozí."]}, {"id": "v07-zony-zelen", "name": "7 · Zóny se zelení", "desc": "Vysoký truhlík dělí jídelní zónu (vlevo-střed) od lounge koutu; gril v pravém pruhu, zeleň rámuje prostor i vstup vpravo vepředu.", "ergo": ["Truhlík jako nízký zelený paraván — zóny bez ucpání průchodu.", "Jídelní stůl pro 6 vlevo-střed, lounge křesla v rohu za zelení.", "Gril u pravého okraje; zeleň navádí ke vstupu.", "Truhlík i zeleň drženy mimo dveře a průchozí zónu."]}, {"id": "v08-dve-sezeni", "name": "8 · Dvě oddělená sezení", "desc": "Dvě nezávislé skupiny: jídelní stůl u domu a obývací (pohovka + křeslo) v levém předním rohu; gril u levé strany; mezi nimi volný střed.", "ergo": ["Dvě konverzační skupiny se navzájem neruší.", "Jídelní stůl pro 6 blízko domu (servis), lounge dál do klidu.", "Volný střed propojuje obě zóny i vstup vepředu s dveřmi.", "Pohovka zády k zahradě, otevřená ke středu a výhledu."]}, {"id": "v09-bistro-kavarna", "name": "9 · Bistro / kavárna", "desc": "Více malých stolků pro 2–4 a dvě závěsná křesla — neformální kavárenská atmosféra; gril v pravém pruhu. Flexibilní pro různě velké skupiny.", "ergo": ["Několik malých stolků = pružné uspořádání podle počtu hostů.", "Dvě závěsná křesla jako lákavé solitéry mimo hlavní cesty.", "Stolky rozmístěné tak, že mezi nimi zůstává průchod.", "Gril u pravého okraje; vstup vpravo vepředu volný."]}, {"id": "v10-velkoryse-open", "name": "10 · Velkorysý open-plan", "desc": "Velká rohová pohovka, velký jídelní stůl pro 8 a venkovní kuchyně s grilem — vše přes využitelnou plochu, s velkorysými průchody.", "ergo": ["Lounge (rohová pohovka) a jídelna pro 8 vedle sebe.", "Venkovní kuchyně u zadní stěny, gril u pravého okraje.", "Mezi zónami i ke vstupu průchod 90+ cm.", "Velkorysé řešení pro velkou společnost / časté hostění."]}];
+const vlist = document.getElementById('vlist');
+const img = document.getElementById('planimg');
+const mname = document.getElementById('mname');
+const mdesc = document.getElementById('mdesc');
+const mergo = document.getElementById('mergo');
+function show(i){{
+  for (const li of vlist.children) li.classList.toggle('active', +li.dataset.i === i);
+  const v = V[i];
+  img.src = 'pudorys/' + v.id + '.svg';
+  mname.textContent = v.name;
+  mdesc.textContent = v.desc;
+  mergo.innerHTML = '';
+  for (const e of v.ergo){{ const li=document.createElement('li'); li.textContent=e; mergo.appendChild(li); }}
+}}
+V.forEach((v,i)=>{{
+  const li=document.createElement('li'); li.textContent=v.name; li.dataset.i=i;
+  li.onclick=()=>show(i); vlist.appendChild(li);
+}});
+show(0);
+</script>
+</body>
+</html>

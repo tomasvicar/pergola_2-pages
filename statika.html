@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — statický odhad</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5em 1em 4em; }
+  h1 { margin: 0.3em 0 0.2em; font-size: 1.6em; }
+  .lead { color: #555; margin-bottom: 1.5em; line-height: 1.5; }
+  h2 {
+    margin-top: 1.6em; padding-bottom: 0.3em;
+    border-bottom: 2px solid #1a5f7f;
+    font-size: 1.2em;
+  }
+  h3 { margin-top: 1.2em; color: #555; font-size: 1em; }
+
+  table.calc { border-collapse: collapse; width: 100%; margin: 0.4em 0 0.8em; background: white; border-radius: 6px; overflow: hidden; }
+  table.calc th, table.calc td { padding: 6px 12px; border-bottom: 1px solid #eee; font-size: 13px; vertical-align: top; }
+  table.calc th { background: #f0f3f5; text-align: left; font-weight: 600; color: #555; font-size: 12px; }
+  table.calc td.num, table.calc th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.calc tr:last-child td { border-bottom: none; }
+  table.calc td.formula { color: #555; font-family: ui-monospace, monospace; font-size: 12px; }
+
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+  .ok { background: #ddf4dd; color: #1a7f37; }
+  .warn { background: #ffebc8; color: #8a5400; }
+  .err { background: #ffcfcf; color: #cf222e; }
+
+  .util-cell { position: relative; min-width: 80px; }
+  .util-bar {
+    display: inline-block; height: 16px; vertical-align: middle;
+    border-radius: 3px;
+  }
+  .util-bar.ok { background: #2da44e; }
+  .util-bar.warn { background: #d4a72c; }
+  .util-bar.err { background: #cf222e; }
+  .util-text { display: inline-block; min-width: 36px; font-size: 12px; vertical-align: middle; margin-left: 6px; font-variant-numeric: tabular-nums; }
+
+  .info {
+    background: #eef5fb; border-left: 4px solid #1a5f7f;
+    padding: 8px 14px; border-radius: 4px;
+    margin: 0.5em 0; font-size: 13px;
+  }
+  .warnbox {
+    background: #fff8e1; border-left: 4px solid #b08200;
+    padding: 8px 14px; border-radius: 4px;
+    margin: 0.5em 0; font-size: 13px; color: #5a4a00;
+  }
+  .verdict {
+    background: #1a5f7f; color: white; padding: 12px 16px;
+    border-radius: 6px; margin: 1.5em 0; font-size: 15px;
+  }
+  .verdict strong { color: white; font-size: 1.1em; }
+
+  code { background: #f0f0f0; padding: 1px 5px; border-radius: 3px; font-size: 12px; font-family: ui-monospace, monospace; }
+  .small { font-size: 12px; color: #777; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html" class="active">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+  <span class="spacer"></span>
+</nav>
+
+<main>
+  <h1>Statický odhad</h1>
+  <p class="lead">
+    Orientační výpočet podle Eurokódu (EN 1991-1-3 sníh, EN 1991-1-4 vítr,
+    EN 1995-1-1 dřevo). <strong>Nenahrazuje posudek statika</strong> pro
+    stavební povolení — slouží jako sanity-check, jestli profily dávají
+    smysl. Pergola: KVH C24, krytina Wabe 76/18, lokalita Brno (větrná zóna II,
+    sněhová zóna II).
+  </p>
+
+  <h3>Předpoklady</h3>
+  <table class="calc">
+    <tbody>
+      <tr><td>Plocha střechy</td><td class="num">28 m²</td><td class="formula">6.97 × 4.0 m</td></tr>
+      <tr><td>Sklon střechy</td><td class="num">5.76°</td><td class="formula">spočítaný z výšky předního sloupu 200 cm</td></tr>
+      <tr><td>Sloupy + nosníky</td><td class="num">12 × 12 cm</td><td class="formula">KVH C24 hoblované</td></tr>
+      <tr><td>Krovy</td><td class="num">8 × 16 cm</td><td class="formula">8 ks, rozpětí 3.64 m, rozteč ~0.875 m</td></tr>
+      <tr><td>Latě</td><td class="num">4 × 6 cm</td><td class="formula">KVH hoblované, rozteč ≤ 80 cm</td></tr>
+      <tr><td>Vzpěry</td><td class="num">10 × 10 cm</td><td class="formula">v rozích + 2 vnitřní zadní, mitered 45°</td></tr>
+      <tr><td>Sloupů celkem</td><td class="num">10 ks</td><td class="formula">4 back + 2 middle + 4 front, rozteč v X ~2.2 m</td></tr>
+      <tr><td>Kotvy</td><td class="num">M20</td><td class="formula">chemická kotva, hloubka 200 mm v betonu C20/25</td></tr>
+      <tr><td>Materiál</td><td class="num">KVH C24</td><td class="formula">f<sub>m,k</sub>=24, f<sub>c,0,k</sub>=21, E<sub>0,mean</sub>=11 000 MPa</td></tr>
+      <tr><td>Service class</td><td class="num">SC2</td><td class="formula">krytá pergola, k<sub>mod,sníh</sub>=0.8, k<sub>mod,vítr</sub>=0.9</td></tr>
+      <tr><td>Návrhové pevnosti</td><td class="num">f<sub>m,d</sub>=14.8 N/mm²</td><td class="formula">= 0.8 × 24 / 1.3 (ohyb, sníh)</td></tr>
+      <tr><td></td><td class="num">f<sub>c,0,d</sub>=12.9 N/mm²</td><td class="formula">= 0.8 × 21 / 1.3 (tlak rovnoběžně, sníh)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Zatížení</h3>
+  <table class="calc">
+    <tbody>
+      <tr><td>Vlastní tíha (g<sub>k</sub>)</td><td class="num">0.20 kN/m²</td><td class="formula">spočítáno z objemu prvků (~565 kg / 28 m²)</td></tr>
+      <tr><td>Sníh (s = μ<sub>1</sub>·s<sub>k</sub>)</td><td class="num">0.80 kN/m²</td><td class="formula">μ<sub>1</sub>=0.8 (sklon &lt; 30°), s<sub>k</sub>=1.0 kN/m² (zóna II)</td></tr>
+      <tr><td>Vítr — sání (w<sub>e</sub>)</td><td class="num">−0.59 kN/m²</td><td class="formula">c<sub>p,net</sub>=−1.3, q<sub>p</sub>=0.45 kN/m² (zóna II, terén III, h≈3 m)</td></tr>
+      <tr><td>Vítr — tlak</td><td class="num">+0.23 kN/m²</td><td class="formula">c<sub>p,net</sub>=+0.5</td></tr>
+      <tr><td>ULS gravitační (1.35G + 1.5S)</td><td class="num">1.47 kN/m²</td><td class="formula">rozhodující pro ohyb krovů a průvlaků</td></tr>
+      <tr><td>ULS sání (1.0G + 1.5W)</td><td class="num">−0.69 kN/m²</td><td class="formula">rozhodující pro tah v kotvách</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Sloupy 12×12 cm — vzpěr (tlak)</h2>
+  <table class="calc">
+    <tbody>
+      <tr><td>Průřez</td><td class="num">A = 14 400 mm²</td><td class="formula">120 × 120</td></tr>
+      <tr><td>Zatížení sloupu (axiální)</td><td class="num">N<sub>Ed</sub> = 4.1 kN</td><td class="formula">28 m² × 1.47 / 10 sloupů</td></tr>
+      <tr><td>Štíhlost</td><td class="num">λ = 66.4</td><td class="formula">L<sub>cr</sub>/i = 2300 / (120/√12) = 2300 / 34.6</td></tr>
+      <tr><td>Relativní štíhlost</td><td class="num">λ<sub>rel</sub> = 1.13</td><td class="formula">(λ/π)·√(f<sub>c,0,k</sub>/E<sub>0,05</sub>) = 21.1 × √(21/7400)</td></tr>
+      <tr><td>Součinitel vzpěrnosti</td><td class="num">k<sub>c</sub> = 0.60</td><td class="formula">EC5 §6.3.2, β<sub>c</sub>=0.2</td></tr>
+      <tr><td>Únosnost (vzpěr)</td><td class="num">N<sub>b,Rd</sub> = 110.9 kN</td><td class="formula">k<sub>c</sub> · A · f<sub>c,0,d</sub> = 0.60 × 14 400 × 12.9</td></tr>
+      <tr>
+        <td>Využití</td>
+        <td class="util-cell"><span class="util-bar ok" style="width: 1.85px;"></span><span class="util-text">3.7 %</span></td>
+        <td><span class="badge ok">OK — obrovská rezerva</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Průvlaky 12×12 cm (přední + zadní) — ohyb</h2>
+  <table class="calc">
+    <tbody>
+      <tr><td>Průřezový modul</td><td class="num">W = 288 × 10³ mm³</td><td class="formula">b·h²/6 = 120·120²/6</td></tr>
+      <tr><td>Moment setrvačnosti</td><td class="num">I = 17.28 × 10⁶ mm⁴</td><td class="formula">b·h³/12 = 120⁴/12</td></tr>
+      <tr><td>Liniové zatížení</td><td class="num">q = 3.12 kN/m</td><td class="formula">14 m² × 1.47 / 6.6 m délky průvlaku</td></tr>
+      <tr><td>Rozpětí mezi sloupy</td><td class="num">L = 2.2 m</td><td class="formula">4 sloupy → 3 pole</td></tr>
+      <tr><td>Ohybový moment (max)</td><td class="num">M<sub>Ed</sub> = 1.89 kNm</td><td class="formula">qL²/8 (konzervativně prostý nosník)</td></tr>
+      <tr><td>Ohybové napětí</td><td class="num">σ = 6.56 N/mm²</td><td class="formula">M / W</td></tr>
+      <tr>
+        <td>Využití (ohyb)</td>
+        <td class="util-cell"><span class="util-bar ok" style="width: 22.2px;"></span><span class="util-text">44.4 %</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr><td>Průhyb (SLS, charakter.)</td><td class="num">δ = 3.4 mm</td><td class="formula">5qL⁴/(384·E·I), q<sub>SLS</sub>=2.12 N/mm</td></tr>
+      <tr>
+        <td>Využití (průhyb, L/300=7.3 mm)</td>
+        <td class="util-cell"><span class="util-bar ok" style="width: 23.5px;"></span><span class="util-text">47 %</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Krovy 8×16 cm — ohyb</h2>
+  <table class="calc">
+    <tbody>
+      <tr><td>Průřezový modul</td><td class="num">W = 341 × 10³ mm³</td><td class="formula">80·160²/6</td></tr>
+      <tr><td>Moment setrvačnosti</td><td class="num">I = 27.3 × 10⁶ mm⁴</td><td class="formula">80·160³/12</td></tr>
+      <tr><td>Liniové zatížení</td><td class="num">q = 1.29 kN/m</td><td class="formula">1.47 kN/m² × 0.875 m rozteč</td></tr>
+      <tr><td>Rozpětí (po šikmině)</td><td class="num">L = 3.64 m</td><td class="formula">mezi back + front průvlakem</td></tr>
+      <tr><td>Ohybový moment</td><td class="num">M<sub>Ed</sub> = 2.13 kNm</td><td class="formula">qL²/8</td></tr>
+      <tr><td>Ohybové napětí</td><td class="num">σ = 6.25 N/mm²</td><td class="formula">M / W</td></tr>
+      <tr>
+        <td>Využití</td>
+        <td class="util-cell"><span class="util-bar ok" style="width: 21.2px;"></span><span class="util-text">42.3 %</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr><td>Průhyb (SLS)</td><td class="num">δ = 6.7 mm</td><td class="formula">L/300 = 12.1 mm → 55 %</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Zub krovu v průvlaku</h2>
+  <table class="calc">
+    <tbody>
+      <tr><td>Hloubka zubu</td><td class="num">4 cm / 12 cm = 33 %</td><td class="formula">EC5 §6.5.2 doporučuje &lt; 50 %</td></tr>
+      <tr><td>Zbývající výška průvlaku</td><td class="num">h<sub>e</sub> = 80 mm</td><td class="formula">120 − 40</td></tr>
+      <tr>
+        <td>Status</td>
+        <td colspan="2"><span class="badge ok">OK — pohodová rezerva</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Větrné sání — kotvy</h2>
+  <table class="calc">
+    <tbody>
+      <tr><td>Celkové sání ULS</td><td class="num">F<sub>uplift</sub> = 19.3 kN</td><td class="formula">0.69 kN/m² × 28 m²</td></tr>
+      <tr><td>Tah na kotvu (rovnoměrně)</td><td class="num">N<sub>tah</sub> = 1.93 kN</td><td class="formula">/ 10 kotev</td></tr>
+      <tr><td>Tah v rohu (zóna A)</td><td class="num">~ 5 kN</td><td class="formula">cp,net,A ≈ −1.8 lokálně</td></tr>
+      <tr><td>Únosnost M20 chem. kotvy 200 mm</td><td class="num">~ 50 kN</td><td class="formula">HILTI HIT-RE 500 / kuželové porušení betonu</td></tr>
+      <tr>
+        <td>Využití kotvy (roh)</td>
+        <td class="util-cell"><span class="util-bar ok" style="width: 5.0px;"></span><span class="util-text">10 %</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="verdict">
+    <strong>Verdikt:</strong> Všechny prvky pod 50 % využití, pergola je
+    výrazně předimenzovaná. Bezpečné, robustní, s rezervou pro neočekávané
+    (těžší sníh, maintenance load, dlouhodobá deformace).
+  </div>
+
+  <h2>Co by ještě zlepšilo konstrukci</h2>
+  <ol style="font-size: 14px; line-height: 1.6;">
+    <li><strong>Hurricane ties (Simpson H1 nebo BMF)</strong> na 16 stycích krov↔průvlak —
+      bez nich je sání zachycené až přes třecí zub. ~3 200 Kč, 30 min montáže.</li>
+    <li><strong>Průvlaky jako jeden kus</strong> nebo spoj nad sloupem (BSH lepené KVH
+      do 12 m k dispozici).</li>
+    <li><strong>Distanční podložky polykarbonátu</strong> dle specu Wabe (V2A vruty 4.5×80,
+      ~12 ks/m²). Sání působí i na desky samotné, ne jen konstrukci.</li>
+    <li><strong>Pěnové těsnící lišty zezadu</strong> proti nasávání větru zpod krytiny.</li>
+  </ol>
+</main>
+</body>
+</html>

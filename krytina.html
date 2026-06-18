@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — nákup krytiny</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 1.5em 1em 4em; }
+  h1 { margin: 0.3em 0 0.2em; font-size: 1.6em; }
+  .lead { color: #555; margin-bottom: 1.2em; line-height: 1.5; }
+  h2 {
+    margin-top: 1.6em; padding-bottom: 0.3em;
+    border-bottom: 2px solid #1a5f7f;
+    font-size: 1.2em;
+  }
+  h3 { margin-top: 1.2em; color: #555; font-size: 1em; }
+  p { line-height: 1.55; }
+
+  .info {
+    background: #eef5fb; border-left: 4px solid #1a5f7f;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; line-height: 1.5;
+  }
+  .info strong { color: #1a5f7f; }
+  .warnbox {
+    background: #fff8e1; border-left: 4px solid #b08200;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; color: #5a4a00; line-height: 1.5;
+  }
+  .warnbox ul, .info ul { margin: 0.4em 0 0 1.2em; }
+
+  table.t { border-collapse: collapse; width: 100%; margin: 0.4em 0 0.8em; background: white; border-radius: 6px; overflow: hidden; font-size: 13px; }
+  table.t th, table.t td { padding: 7px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  table.t th { background: #1a5f7f; color: white; text-align: left; font-weight: 600; font-size: 12px; }
+  table.t th.num, table.t td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.t tr:last-child td { border-bottom: none; }
+  table.t .label { font-weight: 700; }
+  table.t tr.total td { background: #eef5fb; font-weight: 700; }
+  table.t tr.opt td { color: #777; font-style: italic; }
+  a.ext { color: #1a5f7f; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html">Konstrukce</a>
+  <a href="krytina.html" class="active">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+  <span class="spacer"></span>
+</nav>
+
+<main>
+  <h1>Nákup krytiny — polykarbonát + příslušenství</h1>
+  <p class="lead">
+    Co a kolik koupit na zastřešení pergoly. Krytina je
+    <strong>Gutta Guttagliss Wabe 76/18 bronz</strong> (vlnitá polykarbonátová
+    deska 4000 × 1050 mm). Ceny jsou <strong>orientační odhady</strong> — ověř
+    u dodavatele, často se příslušenství prodává v kompletu k deskám.
+  </p>
+
+  <div class="warnbox">
+    <strong>⚠ Sklon 5,76° je pod minimem výrobce (7°).</strong> Vědomě
+    akceptováno (přednost má výška předního sloupu 200 cm) — tím
+    <strong>padá záruka výrobce na krytinu</strong>. Praktický důsledek pro nákup:
+    o to pečlivěji těsnit překryvy a okapovou/zadní hranu (slabší samočisticí efekt),
+    viz těsnění níže.
+  </div>
+
+  <!-- ===================== NÁKUPNÍ SEZNAM ===================== -->
+  <h2>Nákupní seznam (souhrn)</h2>
+  <table class="t">
+    <thead>
+      <tr><th>Položka</th><th>Specifikace</th><th class="num">Počet</th><th class="num">~Cena</th><th>Koupit</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="label">Polykarbonát Wabe 76/18 bronz</td>
+        <td>4000 × 1050 mm (4,2 m²), 714 Kč/m²</td>
+        <td class="num">8 ks</td><td class="num">~24 000 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/polykarbonatova-deska-gutta-guttagliss-wabe-4000-mm-x-1050-mm-bronz-2" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Nerez vrut V2A se samotěsnící <em>i distanční</em> podložkou</td>
+        <td>1 produkt = vrut + obě podložky (do vrcholu vlny)</td>
+        <td class="num">~280 ks</td><td class="num">~3 500 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/nerez-vrut-v2a-s-distancni-podlozkou" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Vlnitá výplň/těsnění vlny 76/18 (Gutta Wabe)</td>
+        <td>pod zadní krycí hranol; <strong>u dodavatele desek</strong>, ne buildex</td>
+        <td class="num">~8 bm</td><td class="num">~500 Kč</td>
+        <td>Guttashop</td>
+      </tr>
+      <tr>
+        <td class="label">Páska Gutta Guttaband stříbrná</td>
+        <td>podklad + reflexní hliník <strong>v jednom</strong>; 45 mm × 30 bm, na vrch latí</td>
+        <td class="num">2 role (~60 bm)</td><td class="num">~680 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/akusticky-tesnici-paska-gutta-guttaband-stribrna-45-mm-x-30-bm" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+      <tr>
+        <td class="label">Silikon na plasty (neutrální)</td>
+        <td>tmelení u zdi / sloupů</td>
+        <td class="num">1–2 ks</td><td class="num">~300 Kč</td>
+        <td><a class="ext" href="https://www.buildex.cz/prislusenstvi-k-vlnitym-deskam" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+      <tr class="opt">
+        <td class="label">Čelní přechodová lišta 76/18 (volitelné)</td>
+        <td>napojení na zeď — u nás řeší dřevěný krycí hranol</td>
+        <td class="num">—</td><td class="num">—</td>
+        <td>—</td>
+      </tr>
+      <tr class="total">
+        <td colspan="3">Krytina celkem (odhad)</td><td class="num">~29 000 Kč</td><td></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="info">
+    <strong>Cena desky ověřená na buildex.cz (červen 2026): 714 Kč/m²</strong> →
+    deska 4,2 m² ≈ <strong>3 000 Kč/ks</strong>, 8 desek ≈ 24 000 Kč. (Dřívější odhad
+    1 500 Kč/ks z rozpočtu byl výrazně nízký.) Vrut a obě podložky prodává buildex
+    jako <strong>jeden produkt</strong> (~12,40 Kč/ks), proto je to jeden řádek.
+    Pozn.: v <a href="realizace.html">rozpočtu</a> byl polykarbonát na <strong>7 desek</strong>
+    — nezahrnoval boční partial pásy (8. deska); tady je to dopočítané.
+  </p>
+
+  <!-- ===================== KOLIK DESEK ===================== -->
+  <h2>1. Kolik polykarbonátu — proč 8 desek</h2>
+  <p>
+    Střecha se skládá z <strong>7 plných desek</strong> (hlavní pole, šířka
+    697,3 cm) + <strong>2 bočních partial pásů</strong> (po 5 vlnách = 361 mm,
+    jeden na každé straně). Partial pásy rozšiřují krytí o 30,4 cm na stranu
+    (celková krytá šířka <strong>758,1 cm</strong>) a leží na přečnívajících latích.
+  </p>
+  <table class="t">
+    <tbody>
+      <tr><td class="label">Hlavní pole</td><td class="num">7 desek</td><td>plná šířka 1045 mm, skladební překryv 1 vlna (988 mm efektivně)</td></tr>
+      <tr><td class="label">Boční partial pásy</td><td class="num">2 ks</td><td>5 vln (361 mm), 1 vlna v překryvu se sousední plnou deskou</td></tr>
+      <tr><td class="label">Hloubka (směr toku, +Y)</td><td class="num">400 cm</td><td>= přesně 1 délka desky po šikmině → <strong>žádné podélné nastavování</strong></td></tr>
+      <tr><td class="label">Desek koupit</td><td class="num">8 ks</td><td>7 celých + 1 navíc, ze které vyřízneš <strong>oba</strong> partial pásy (2 × 361 mm se vejdou do jedné 1045mm desky, zbytek odpad)</td></tr>
+    </tbody>
+  </table>
+  <p class="info">
+    Desky se v <strong>X nepřesazují</strong> (končí na konstrukci) a v <strong>Y</strong>
+    je každá deska jeden 4m kus přes celou hloubku — takže prořez je minimální:
+    jen rozříznutí 8. desky na 2 partial pásy.
+  </p>
+
+  <!-- ===================== KOTVENÍ ===================== -->
+  <h2>2. Kotvení desek — podložky + vruty</h2>
+  <p>
+    Deska se šroubuje <strong>do vrcholu vlny</strong> přes <strong>distanční
+    podložku 18 mm</strong> (vyrovná výšku vlny, aby se vrchol nezmáčkl) a
+    <strong>samotěsnicí vrut V2A</strong> s pryžovou (EPDM) podložkou.
+  </p>
+  <h3>Kolik kusů</h3>
+  <table class="t">
+    <tbody>
+      <tr><td>Krajní latě L1 a L6</td><td>kotvit <strong>každou 2. vlnu</strong></td><td class="num">~50 + 50</td></tr>
+      <tr><td>Vnitřní latě L2–L5</td><td>kotvit <strong>každou 3. vlnu</strong></td><td class="num">4 × ~34</td></tr>
+      <tr><td class="label">Spočítáno celkem</td><td>6 latí × ~100 vln na šířku</td><td class="num">~232 bodů</td></tr>
+      <tr><td class="label">Doporučený nákup</td><td>+ rezerva a zlomky (pravidlo výrobce 12 ks/m² dá až ~360)</td><td class="num">~280–300 ks</td></tr>
+    </tbody>
+  </table>
+  <h3>Dvě možnosti spojovacího materiálu</h3>
+  <p>
+    Vždy potřebuješ <strong>distanční podložku 18 mm</strong> (podepře vrchol vlny,
+    aby se při dotažení nezmáčkl) + <strong>vrut se samotěsnící (EPDM) podložkou</strong>.
+    Buildex je nabízí dvojím způsobem:
+  </p>
+  <table class="t">
+    <thead><tr><th>Varianta</th><th class="num">~Cena (280 ks)</th><th>Výhody</th><th>Nevýhody</th><th>Koupit</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="label">A) Kombinovaný<br>(vrut + obě podložky v jednom)</td>
+        <td class="num">~3 500 Kč<br>(~12,4 Kč/ks)</td>
+        <td>Podložka je <strong>navlečená na vrutu</strong> → snazší montáž na střeše
+            (nedržíš ji v mezeře pod deskou jednou rukou). Pasuje k profilu 76/18.
+            Míň dílů, nic se neztratí.</td>
+        <td>Dražší o ~1 000 Kč. Nutno ověřit, že distanční podložka je <strong>18 mm</strong>.</td>
+        <td><a class="ext" href="https://www.buildex.cz/nerez-vrut-v2a-s-distancni-podlozkou" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+      <tr>
+        <td class="label">B) Zvlášť<br>(vrut + distanční podložka 18 mm)</td>
+        <td class="num">~2 500 Kč<br>(~9 Kč/ks)</td>
+        <td><strong>Levnější</strong> o ~1 000 Kč. Jistá <strong>18mm</strong> výška
+            podložky přesně pro vlnu 76/18.</td>
+        <td>Pracnější montáž — podložku musíš navlékat / držet pod vlnou. Víc dílů na hlídání.</td>
+        <td><a class="ext" href="https://www.buildex.cz/vruty-a-podlozky-gutta" target="_blank" rel="noopener">Buildex →</a></td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="info">
+    <strong>Doporučení:</strong> pro svépomocnou montáž <strong>varianta A (kombinovaný)</strong>
+    — pohodlí převáží ~1 000 Kč úspory — <em>pokud</em> má distanční podložku 18 mm.
+    Pokud ne (nebo chceš ušetřit), ber <strong>B</strong>. Vrut ať je dost dlouhý do
+    latě 40 mm (orientačně 4,5 × 45 mm; do krovu 4,5 × 60). Pravidla vrtání viz níže.
+  </div>
+  <div class="warnbox">
+    <strong>Pravidla vrtání (kvůli dilataci ~3 mm/m):</strong>
+    <ul>
+      <li>Otvor v desce <strong>předvrtat o 3–4 mm větší</strong> než průměr vrutu.</li>
+      <li>Vrtat <strong>kolmo (90°) do vrcholu vlny</strong>, nikdy do údolí.</li>
+      <li><strong>Neutahovat napevno</strong> — silné dotažení desku zdeformuje; deska se musí moct teplem roztáhnout.</li>
+      <li><strong>Kalota není potřeba</strong> (nejsme nad 500 m n. m. ani silně návětrná poloha).</li>
+    </ul>
+  </div>
+
+  <!-- ===================== TĚSNĚNÍ ===================== -->
+  <h2>3. Těsnění a lišty</h2>
+  <table class="t">
+    <tbody>
+      <tr>
+        <td class="label">Vlnitá výplň/těsnění vlny 76/18 (Gutta Wabe)</td>
+        <td><strong>Pod zadní krycí hranol</strong> (u domu, ~7,6 m) — vlnitá pěna/výplň
+            sedne na vrcholy desky a utěsní troughy proti větru a sněhu. <strong>Shánět
+            u dodavatele desek</strong> (Guttashop) — buildex má jen verzi pro <em>bitumenové</em>
+            desky (Guttanit/Guttapral, navíc nedostupná) a trapézovou, ne pro PC Wabe.
+            Přední hrana je teď řešená <a href="okap.html">okapem</a>, tam je výplň
+            volitelná (jen proti ptákům/listí).</td>
+        <td class="num">~8 bm</td>
+      </tr>
+      <tr>
+        <td class="label">Páska Gutta Guttaband stříbrná<br>(45 mm × 30 bm)</td>
+        <td>Na <strong>vrch latí</strong> pod desku — <strong>jeden produkt za obě funkce</strong>:
+            pěnový tlumicí/těsnicí podklad (odděluje dřevo od plastu, tlumí déšť) <em>i</em>
+            stříbrný <strong>reflexní povrch</strong> proti přenosu tepla z tmavě lazurovaného
+            dřeva (proti deformaci desky). Potřeba ~46 bm (6 latí × 7,6 m) → <strong>2 role</strong>.</td>
+        <td class="num">2 role</td>
+      </tr>
+      <tr>
+        <td class="label">Silikon na plasty (neutrální)</td>
+        <td>Tmelení napojení krytiny na zeď domu / sloupy, kde je potřeba.</td>
+        <td class="num">1–2 kartuše</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ===================== MONTÁŽ ===================== -->
+  <h2>4. Montážní pravidla (důležité)</h2>
+  <ul>
+    <li><strong>Pokládka odspoda nahoru</strong> (od okapu) — vyšší pás překrývá nižší jako tašky.</li>
+    <li><strong>Příčný překryv mezi pásy = 1 vlna</strong> (76 mm); kotvící vrut dej <strong>uprostřed překryvu</strong>. Krovy jsou schválně pod překryvy, ať nejsou vidět.</li>
+    <li><strong>Boční hrany nepřesazovat</strong> — deska končí na konstrukci (řeší to latě).</li>
+    <li><strong>Dilatační mezera ~3,5 mm na 1 m</strong> délky i šířky.</li>
+    <li>Rozteč latí (max. 800 mm dle výrobce) je u nás <strong>~768 mm</strong> — v pořádku. Viz <a href="konstrukce.html">Konstrukce → Latě</a>.</li>
+  </ul>
+
+  <!-- ===================== ODKAZY ===================== -->
+  <h2>Odkazy a dokumenty</h2>
+  <ul>
+    <li>E-shop desky:
+      <a class="ext" href="https://www.buildex.cz/polykarbonatova-deska-gutta-guttagliss-wabe-4000-mm-x-1050-mm-bronz-2" target="_blank" rel="noopener">buildex.cz — Guttagliss Wabe 4000×1050 bronz</a></li>
+    <li>Vruty + podložky (Buildex):
+      <a class="ext" href="https://www.buildex.cz/nerez-vrut-v2a-s-distancni-podlozkou" target="_blank" rel="noopener">Nerez vrut Salux V2A se samotěsnící + distanční podložkou</a></li>
+    <li>Těsnění, lišty, pásky (Buildex):
+      <a class="ext" href="https://www.buildex.cz/prislusenstvi-k-vlnitym-deskam" target="_blank" rel="noopener">Příslušenství k vlnitým deskám</a></li>
+    <li>Technický list desky:
+      <a class="ext" href="technicky-listguttagliss-wabe012022.pdf" target="_blank" rel="noopener">technicky-list-guttagliss-wabe.pdf</a></li>
+    <li>Montážní návod vlnitých desek:
+      <a class="ext" href="Vlnite-desky-Montazni-navod-2019-dropshop-verze-02.pdf" target="_blank" rel="noopener">Vlnite-desky-montazni-navod.pdf</a></li>
+  </ul>
+  <p class="info">
+    Parametry desky (tloušťka 2,8 mm, 14 vln, šířka 1045/988 mm, světelná
+    propustnost bronz 49 %, roztažnost ~3 mm/m) jsou v technickém listu výše.
+    Příslušenství (podložky, vruty, lišty) bývá u dodavatele polykarbonátu
+    v kompletu — vyplatí se koupit společně s deskami.
+  </p>
+</main>
+</body>
+</html>

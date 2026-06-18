@@ -1,0 +1,877 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<title>Pergola — konstrukční postup</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #f7f7f7; color: #222; }
+  .topnav {
+    position: sticky; top: 0; z-index: 10;
+    background: white; border-bottom: 1px solid #ddd;
+    padding: 8px 16px; display: flex; gap: 4px; align-items: center;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .topnav a {
+    text-decoration: none; padding: 6px 14px; border-radius: 4px;
+    color: #555; font-size: 14px;
+  }
+  .topnav a.active { background: #1a5f7f; color: white; }
+  .topnav a:hover:not(.active) { background: #eee; }
+  .topnav .spacer { flex: 1; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 1.5em 1em 4em; }
+  h1 { margin: 0.3em 0 0.2em; font-size: 1.6em; }
+  .lead { color: #555; margin-bottom: 1.2em; line-height: 1.5; }
+  h2 {
+    margin-top: 1.4em; padding-bottom: 0.3em;
+    border-bottom: 2px solid #1a5f7f;
+    font-size: 1.2em;
+  }
+  h3 { margin-top: 1.2em; color: #555; font-size: 1em; }
+
+  .vartabs {
+    display: flex; gap: 4px; margin: 0.5em 0 0;
+    border-bottom: 2px solid #1a5f7f;
+    flex-wrap: wrap;
+  }
+  .vartab {
+    padding: 8px 16px; cursor: pointer;
+    background: #e8eef2; color: #555;
+    border-radius: 6px 6px 0 0;
+    font-size: 14px; font-weight: 600;
+    border: none; border-bottom: 0;
+  }
+  .vartab.active { background: #1a5f7f; color: white; }
+  .vartab:hover:not(.active) { background: #d0dde6; }
+  .vartab[disabled] { background: #f0f0f0; color: #aaa; cursor: not-allowed; }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  .info {
+    background: #eef5fb; border-left: 4px solid #1a5f7f;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; line-height: 1.5;
+  }
+  .info strong { color: #1a5f7f; }
+  .warnbox {
+    background: #fff8e1; border-left: 4px solid #b08200;
+    padding: 10px 14px; border-radius: 4px;
+    margin: 0.8em 0; font-size: 13px; color: #5a4a00; line-height: 1.5;
+  }
+
+  .diagram {
+    background: white; border: 1px solid #ddd; border-radius: 8px;
+    padding: 12px; margin: 1em 0;
+  }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram .caption {
+    font-size: 12px; color: #777; text-align: center;
+    margin-top: 6px;
+  }
+
+  table.patky { border-collapse: collapse; width: 100%; margin: 0.4em 0 0.8em; background: white; border-radius: 6px; overflow: hidden; font-size: 13px; }
+  table.patky th, table.patky td { padding: 6px 10px; border-bottom: 1px solid #eee; }
+  table.patky th { background: #1a5f7f; color: white; text-align: left; font-weight: 600; font-size: 12px; }
+  table.patky th.num, table.patky td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.patky tr:last-child td { border-bottom: none; }
+  table.patky tr.row-back   { background: #fafdff; }
+  table.patky tr.row-middle { background: #fff8ee; }
+  table.patky tr.row-front  { background: #f5fcf5; }
+  table.patky .label { font-weight: 700; font-family: ui-monospace, monospace; }
+  table.patky th.group { border-left: 1px solid #ccd6dc; }
+  table.patky td.group { border-left: 1px solid #eee; }
+  table.patky th.subhead { background: #5b8aa3; font-size: 11px; }
+  table.patky tr.legend td { background: #f0f3f5; color: #555; font-style: italic; font-size: 12px; }
+
+  /* SVG diagram styling */
+  .svg-house-wall  { fill: #fff5c9; stroke: #b8a04b; stroke-width: 1.5; }
+  .svg-window      { fill: #cfe0ec; stroke: #6b8a9e; stroke-width: 1.2; }
+  .svg-concrete    { fill: #ececec; stroke: #888; stroke-width: 1.5; }
+  .svg-patka       { fill: #cf222e; stroke: #6e0d12; stroke-width: 1.2; }
+  .svg-post-shadow { fill: none; stroke: #c0a04a; stroke-width: 0.8; stroke-dasharray: 3 3; }
+  .svg-dim-line    { fill: none; stroke: #2da44e; stroke-width: 1.2; }
+  .svg-dim-line.alt{ stroke: #1a5f7f; }
+  .svg-dim-text    { font-family: system-ui, sans-serif; font-size: 11px; fill: #1a7f37; font-weight: 600; }
+  .svg-dim-text.alt{ fill: #1a5f7f; }
+  .svg-label       { font-family: system-ui, sans-serif; font-size: 12px; fill: #333; font-weight: 700; }
+  .svg-label.center{ text-anchor: middle; }
+  .svg-label.small { font-size: 10px; font-weight: 500; fill: #666; }
+  .svg-orient      { font-family: system-ui, sans-serif; font-size: 13px; fill: #555; font-weight: 600; }
+  .svg-patka-label { font-family: ui-monospace, monospace; font-size: 11px; fill: #222; font-weight: 700; text-anchor: middle; }
+</style>
+</head>
+<body>
+<nav class="topnav">
+  <a href="realizace.html">Realizace</a>
+  <a href="viewer.html">3D model</a>
+  <a href="pudorys.html">Půdorys</a>
+  <a href="parts.html">Seznam dřeva</a>
+  <a href="statika.html">Statika</a>
+  <a href="konstrukce.html" class="active">Konstrukce</a>
+  <a href="krytina.html">Krytina</a>
+  <a href="okap.html">Okap</a>
+  <a href="expert.html">Otázky odborníkovi</a>
+  <span class="spacer"></span>
+</nav>
+
+<main>
+  <h1>Konstrukční postup</h1>
+  <p class="lead">
+    Postup stavby pergoly krok za krokem. Postupně se doplňuje, jak se
+    dostaneme k jednotlivým fázím.
+  </p>
+
+  <div class="vartabs">
+    <button class="vartab active" data-tab="patky">Patky na betonu</button>
+    <button class="vartab" data-tab="krovy">Krovy</button>
+    <button class="vartab" data-tab="late">Latě</button>
+    <button class="vartab" data-tab="nosniky">Nosníky</button>
+  </div>
+
+  <!-- ===================== TAB: Patky na betonu ===================== -->
+  <div class="tab-content active" id="patky">
+    <h2>Vyznačení patek na betonové terase</h2>
+    <p>
+      10 patek M20 (chemická kotva, hloubka 200 mm v betonu C20/25) ve třech
+      řadách: <strong>zadní</strong> u domu (4 ks), <strong>střední</strong>
+      jen rohové (2 ks) a <strong>přední</strong> u kraje terasy (4 ks). Patka =
+      vyvrtaná díra do betonu, do které se vlepí závitová tyč M20 (chemická
+      kotva). Sloupek 12 × 12 cm sedí na podložce + matce nad betonem (10 cm
+      vzduchová mezera).
+    </p>
+
+    <div class="warnbox">
+      <strong>⚠ Reference pro značení:</strong> Beton bývá v rozích nepřesný
+      (obvykle ± 1–2 cm). Hlavní referencí je proto <strong>zadní stěna domu</strong>
+      (pro Y) a <strong>levá hrana pravého okna</strong> (pro X) — tyto dvě
+      hrany jsou rovné a kolmé. Vzdálenost od kraje betonu je orientační:
+      pokud beton sedí, vyjde 6 cm od vnější hrany sloupku (= 12 cm ke středu
+      patky).
+    </div>
+
+    <h3>Půdorys — pohled shora</h3>
+    <div class="diagram">
+      <!-- SVG: top-down view, user perspective. House wall is at top.
+           Coordinate flip: SVG_X = HOUSE_W − real_X, so user's "vpravo"
+           (looking from terrace at house = smallest real-X) appears on
+           the right side of the page. -->
+      <svg viewBox="-90 -110 1240 580" xmlns="http://www.w3.org/2000/svg">
+        <!-- House wall (line + 3 windows). Wall at SVG_Y = 0. -->
+        <!-- Wall as a thick band above Y=0 to visualize the depth. -->
+        <rect class="svg-house-wall" x="-50" y="-30" width="1150" height="30" />
+        <!-- Windows (drawn slightly above the wall edge):
+             real-X spans [50.5, 263.0], [383.4, 490.0], [803.0, 909.6]
+             flip: SVG_X = 1053.1 - real_X. -->
+        <!-- Right window (real X=50.5..263.0 → SVG 790.1..1002.6) -->
+        <rect class="svg-window" x="790.1" y="-26" width="212.5" height="22" />
+        <text class="svg-label small center" x="896.35" y="-10">okno (pravé)</text>
+        <!-- Middle window (real X=383.4..490.0 → SVG 563.1..669.7) -->
+        <rect class="svg-window" x="563.1" y="-26" width="106.6" height="22" />
+        <text class="svg-label small center" x="616.4" y="-10">okno</text>
+        <!-- Left window (real X=803.0..909.6 → SVG 143.5..250.1) -->
+        <rect class="svg-window" x="143.5" y="-26" width="106.6" height="22" />
+        <text class="svg-label small center" x="196.8" y="-10">okno</text>
+
+        <!-- House label -->
+        <text class="svg-orient" x="-50" y="-50">DŮM (zadní stěna domu)</text>
+
+        <!-- Concrete patio: real X=279..944.9, real Y=0..382.5
+             SVG: X 108.2..774.1, Y 0..382.5 -->
+        <rect class="svg-concrete" x="108.2" y="0" width="665.9" height="382.5" />
+        <text class="svg-orient" x="441.15" y="-80" text-anchor="middle">BETONOVÁ TERASA — pohled shora</text>
+
+        <!-- Posts as dashed squares around each patka center.
+             Post size 12×12 cm. Real X centers: {290, 504.633, 719.267, 933.9}.
+             SVG centers (flip): X = 1053.1 - real_X = {763.1, 548.47, 333.83, 119.2}. -->
+        <!-- Back row (Y=11) -->
+        <rect class="svg-post-shadow" x="757.1"  y="5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="512.13" y="5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="327.83" y="5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="113.2"  y="5" width="12" height="12" />
+        <!-- Middle row (Y=191.25), only corners -->
+        <rect class="svg-post-shadow" x="757.1" y="185.25" width="12" height="12" />
+        <rect class="svg-post-shadow" x="113.2" y="185.25" width="12" height="12" />
+        <!-- Front row (Y=371.5) -->
+        <rect class="svg-post-shadow" x="757.1"  y="365.5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="542.47" y="365.5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="327.83" y="365.5" width="12" height="12" />
+        <rect class="svg-post-shadow" x="113.2"  y="365.5" width="12" height="12" />
+
+        <!-- Patky as small red dots at post centers (= drill location).
+             Labels positioned below the patka, in the concrete area. -->
+        <!-- Back row -->
+        <circle class="svg-patka" cx="763.1"  cy="11" r="3" />
+        <text class="svg-patka-label" x="763.1"  y="28">Z1</text>
+        <circle class="svg-patka" cx="518.13" cy="11" r="3" />
+        <text class="svg-patka-label" x="518.13" y="28">Z2</text>
+        <circle class="svg-patka" cx="333.83" cy="11" r="3" />
+        <text class="svg-patka-label" x="333.83" y="28">Z3</text>
+        <circle class="svg-patka" cx="119.2"  cy="11" r="3" />
+        <text class="svg-patka-label" x="119.2"  y="28">Z4</text>
+        <!-- Middle row -->
+        <circle class="svg-patka" cx="763.1" cy="191.25" r="3" />
+        <text class="svg-patka-label" x="763.1" y="208">S1</text>
+        <circle class="svg-patka" cx="119.2" cy="191.25" r="3" />
+        <text class="svg-patka-label" x="119.2" y="208">S2</text>
+        <!-- Front row (labels ABOVE patka, since concrete edge below is tight) -->
+        <circle class="svg-patka" cx="763.1"  cy="371.5" r="3" />
+        <text class="svg-patka-label" x="763.1"  y="360">P1</text>
+        <circle class="svg-patka" cx="548.47" cy="371.5" r="3" />
+        <text class="svg-patka-label" x="548.47" y="360">P2</text>
+        <circle class="svg-patka" cx="333.83" cy="371.5" r="3" />
+        <text class="svg-patka-label" x="333.83" y="360">P3</text>
+        <circle class="svg-patka" cx="119.2"  cy="371.5" r="3" />
+        <text class="svg-patka-label" x="119.2"  y="360">P4</text>
+
+        <!-- Example dimensions for Z1 (the right back patka):
+             X from left edge of right window: real-X 263 → SVG 790.1.
+             Distance from window-left to Z1: 790.1 - 763.1 = 27 (in flipped SVG units).
+             Y from house: 11 cm. -->
+
+        <!-- Dim line: X from right concrete edge to Z1 (= 11 cm) -->
+        <line class="svg-dim-line" x1="774.1" y1="40" x2="763.1" y2="40" />
+        <line class="svg-dim-line" x1="774.1" y1="36" x2="774.1" y2="44" />
+        <line class="svg-dim-line" x1="763.1" y1="36" x2="763.1" y2="44" />
+        <text class="svg-dim-text" x="768.6" y="55" text-anchor="middle">12</text>
+
+        <!-- Dim line: Y from house wall to Z1 (= 11 cm) -->
+        <line class="svg-dim-line" x1="745" y1="0" x2="745" y2="11" />
+        <line class="svg-dim-line" x1="741" y1="0" x2="749" y2="0" />
+        <line class="svg-dim-line" x1="741" y1="11" x2="749" y2="11" />
+        <text class="svg-dim-text" x="730" y="9" text-anchor="end">11</text>
+
+        <!-- Dim line: X from left edge of right window to Z1 (= 27 cm) -->
+        <line class="svg-dim-line alt" x1="790.1" y1="-45" x2="763.1" y2="-45" />
+        <line class="svg-dim-line alt" x1="790.1" y1="-49" x2="790.1" y2="-41" />
+        <line class="svg-dim-line alt" x1="763.1" y1="-49" x2="763.1" y2="-41" />
+        <text class="svg-dim-text alt" x="776.6" y="-50" text-anchor="middle">28</text>
+        <line class="svg-dim-line alt" x1="790.1" y1="-4" x2="790.1" y2="-45" stroke-dasharray="2 2" />
+        <line class="svg-dim-line alt" x1="763.1" y1="11" x2="763.1" y2="-45" stroke-dasharray="2 2" />
+
+        <!-- Orientation arrows (left/right labels). User's perspective:
+             stojí na terase a kouká k domu, vpravo na výkresu = jeho vpravo. -->
+        <text class="svg-orient" x="1140" y="430" text-anchor="end">→ vpravo (zezadu, ke X=0)</text>
+        <text class="svg-orient" x="-60"  y="430">vlevo (zezadu, +X) ←</text>
+        <text class="svg-orient" x="491.55" y="455" text-anchor="middle">↑ ke stěně domu</text>
+
+        <!-- Legend -->
+        <g transform="translate(820, 220)">
+          <rect x="-10" y="-10" width="290" height="160" fill="white" stroke="#ccc" stroke-width="1" rx="4" />
+          <text class="svg-label" x="0" y="6">Legenda</text>
+          <circle cx="10" cy="30" r="7" class="svg-patka" />
+          <text class="svg-label small" x="28" y="33">patka (M20 kotva, díra v betonu)</text>
+          <rect class="svg-post-shadow" x="3" y="48" width="14" height="14" />
+          <text class="svg-label small" x="28" y="58">sloupek 12 × 12 cm (nad patkou)</text>
+          <line class="svg-dim-line" x1="0" y1="80" x2="20" y2="80" />
+          <text class="svg-label small" x="28" y="83">vzdálenost od kraje betonu / domu</text>
+          <line class="svg-dim-line alt" x1="0" y1="100" x2="20" y2="100" />
+          <text class="svg-label small" x="28" y="103">vzdálenost od levé hrany pravého okna</text>
+          <text class="svg-label small" x="0" y="128">Z = zadní řada (u domu)</text>
+          <text class="svg-label small" x="0" y="142">S = střední řada (jen rohové)</text>
+          <text class="svg-label small" x="115" y="128">P = přední řada</text>
+          <text class="svg-label small" x="115" y="142">1–4 zprava doleva</text>
+        </g>
+      </svg>
+      <div class="caption">
+        Pohled shora, dům nahoře. Orientace odpovídá pohledu člověka, který
+        stojí na terase a kouká k domu (vpravo na výkresu = vpravo na terase).
+        Příkladové kóty jsou u <strong>Z1</strong>; ostatní hodnoty v tabulce
+        níže.
+      </div>
+    </div>
+
+    <h3>Tabulka — souřadnice všech 10 patek</h3>
+    <p class="info">
+      <strong>Středy patek</strong> (= místo, kam vyvrtat díru). Hodnoty v cm,
+      přesnost 1 mm. Pro každou patku jsou uvedeny <strong>tři způsoby
+      změření</strong>, ať si můžeš vybrat referenci, která je u tebe nejméně
+      zkreslená.
+    </p>
+    <table class="patky">
+      <thead>
+        <tr>
+          <th rowspan="2">Patka</th>
+          <th rowspan="2">Řada</th>
+          <th colspan="3" class="group">X (podél domu) [cm]</th>
+          <th colspan="2" class="group">Y (od domu) [cm]</th>
+        </tr>
+        <tr>
+          <th class="num subhead group">od pravého kraje betonu</th>
+          <th class="num subhead">od levého kraje betonu</th>
+          <th class="num subhead">od levé hrany pravého okna</th>
+          <th class="num subhead group">od zadní stěny domu</th>
+          <th class="num subhead">od přední hrany betonu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-back">
+          <td class="label">Z1</td><td>zadní vpravo</td>
+          <td class="num group">12.0</td><td class="num">653.9</td><td class="num">28.0</td>
+          <td class="num group">11.0</td><td class="num">371.5</td>
+        </tr>
+        <tr class="row-back">
+          <td class="label">Z2</td><td>zadní vpravo střed</td>
+          <td class="num group">256.0</td><td class="num">409.9</td><td class="num">272.0</td>
+          <td class="num group">11.0</td><td class="num">371.5</td>
+        </tr>
+        <tr class="row-back">
+          <td class="label">Z3</td><td>zadní vlevo střed</td>
+          <td class="num group">439.9</td><td class="num">226.0</td><td class="num">455.9</td>
+          <td class="num group">11.0</td><td class="num">371.5</td>
+        </tr>
+        <tr class="row-back">
+          <td class="label">Z4</td><td>zadní vlevo</td>
+          <td class="num group">653.9</td><td class="num">12.0</td><td class="num">669.9</td>
+          <td class="num group">11.0</td><td class="num">371.5</td>
+        </tr>
+        <tr class="row-middle">
+          <td class="label">S1</td><td>střední vpravo</td>
+          <td class="num group">12.0</td><td class="num">653.9</td><td class="num">28.0</td>
+          <td class="num group">191.3</td><td class="num">191.3</td>
+        </tr>
+        <tr class="row-middle">
+          <td class="label">S2</td><td>střední vlevo</td>
+          <td class="num group">653.9</td><td class="num">12.0</td><td class="num">669.9</td>
+          <td class="num group">191.3</td><td class="num">191.3</td>
+        </tr>
+        <tr class="row-front">
+          <td class="label">P1</td><td>přední vpravo</td>
+          <td class="num group">12.0</td><td class="num">653.9</td><td class="num">28.0</td>
+          <td class="num group">371.5</td><td class="num">11.0</td>
+        </tr>
+        <tr class="row-front">
+          <td class="label">P2</td><td>přední vpravo střed</td>
+          <td class="num group">226.0</td><td class="num">439.9</td><td class="num">242.0</td>
+          <td class="num group">371.5</td><td class="num">11.0</td>
+        </tr>
+        <tr class="row-front">
+          <td class="label">P3</td><td>přední vlevo střed</td>
+          <td class="num group">439.9</td><td class="num">226.0</td><td class="num">455.9</td>
+          <td class="num group">371.5</td><td class="num">11.0</td>
+        </tr>
+        <tr class="row-front">
+          <td class="label">P4</td><td>přední vlevo</td>
+          <td class="num group">653.9</td><td class="num">12.0</td><td class="num">669.9</td>
+          <td class="num group">371.5</td><td class="num">11.0</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="warnbox">
+      <strong>⚠ Z2 není pod P2.</strong> Zadní vnitřní pravá patka <strong>Z2</strong>
+      je záměrně posunutá o <strong>30 cm doleva</strong> (+X) za elektrickou zásuvku,
+      takže <em>nestojí přímo nad P2</em>. V tabulce má proto jiné X (256,0 od pravého
+      kraje betonu) než P2 (226,0). Ostatní zadní patky stojí nad předními.
+    </div>
+
+    <h3>Klíčové reference</h3>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Beton — šířka podél domu</strong></td><td class="num">665.9 cm</td><td>(= 944.9 − 279.0; měřeno mezi pravou a levou hranou betonu)</td></tr>
+        <tr><td><strong>Beton — hloubka od domu</strong></td><td class="num">382.5 cm</td><td>(zadní hrana naléhá na fasádu, přední hrana 3.825 m od domu)</td></tr>
+        <tr><td><strong>Pravé okno (zprava)</strong></td><td class="num">X = 50.5 až 263.0 cm</td><td>od pravého rohu domu — levá hrana okna v 263.0 cm</td></tr>
+        <tr><td><strong>Šířka pergoly mezi krajními sloupky (osy)</strong></td><td class="num">641.9 cm</td><td>= 3 × 213.97 cm (rozteč mezi sousedními sloupky v X; pozn. Z2 vybočuje za zásuvku)</td></tr>
+        <tr><td><strong>Hloubka pergoly mezi předním a zadním sloupkem (osy)</strong></td><td class="num">360.5 cm</td><td>= 2 × 180.25 cm (střední řada přesně uprostřed)</td></tr>
+        <tr><td><strong>Profil sloupku</strong></td><td class="num">12 × 12 cm</td><td>vnější hrana 6 cm od kraje betonu → střed patky 12 cm od kraje</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Postup značení</h3>
+    <ol style="font-size: 14px; line-height: 1.7;">
+      <li>
+        <strong>Vyznač X osu — měř od levé hrany pravého okna.</strong>
+        Natáhni provázek od fasády domu pod levou hranou okna kolmo ven na
+        beton. Z této osy odměř X souřadnici každé patky podle sloupce
+        „<em>od levé hrany pravého okna</em>" v tabulce výše.
+      </li>
+      <li>
+        <strong>Vyznač Y osu — měř od zadní stěny domu.</strong>
+        Pro každou patku odměř kolmou vzdálenost od fasády (sloupec
+        „<em>od zadní stěny domu</em>"). Zadní řada = 11 cm od fasády,
+        střední = 191.3 cm, přední = 371.5 cm.
+      </li>
+      <li>
+        <strong>Zkontroluj proti kraji betonu.</strong> Pro každou krajní
+        patku (Z1, Z4, P1, P4) musí vyjít 12 cm od přilehlého kraje betonu.
+        Pokud vyjde 10–14 cm, beton je v toleranci. Pokud víc, beton není
+        čtvercový — drž se hodnot od domu/okna, ne od kraje.
+      </li>
+      <li>
+        <strong>Vyvrtej díry M20</strong> (vrták Ø 22–25 mm, hloubka 200 mm).
+        Vyfoukej z díry prach, vlepi závitovou tyč chemickou maltou (HILTI
+        HIT-RE 500 nebo ekvivalent). Tyčka cca 30 cm nad beton.
+      </li>
+      <li>
+        <strong>Nasaď spodní podložku + matku</strong> tak, aby spodek sloupku
+        byl <strong>10 cm nad betonem</strong> (vzduchová mezera proti
+        odstříkávání vody). Sloupek pak sedne na podložku + matku, fixuje se
+        další podložkou + matkou shora uvnitř vyvrtaného otvoru ve sloupku.
+      </li>
+    </ol>
+
+    <div class="info">
+      <strong>Tip:</strong> Když si nakreslíš na betonu obě osy
+      (X od okna, Y od domu) jako křížek pro každou patku, díry pak
+      vyvrtáš v křížení. Pak stačí jen zkontrolovat, že 4 krajní patky
+      vyšly do tolerance vůči kraji betonu.
+    </div>
+  </div>
+
+  <!-- ===================== TAB: Krovy — příprava a řezy ===================== -->
+  <div class="tab-content" id="krovy">
+    <h2>Krovy — příprava a řezy (8 ks, KVH C24 8 × 16 cm)</h2>
+    <p>
+      Všech 8 krovů je <strong>identických</strong>. Krov leží na dvou
+      <strong>vodorovných</strong> průvlacích (zadní u domu, přední u kraje
+      terasy) a je skloněný <strong>5,76°</strong> (≈ 10,1 %). Na každém krovu se
+      připraví: <strong>zadní čelo</strong> + <strong>přední čelo</strong> (obě
+      svislá), <strong>zadní výřez</strong> + <strong>přední výřez</strong>
+      (sedla, kterými krov dosedne na průvlaky) a <strong>dekorativní spodní
+      zářez</strong> vepředu. Níže jsou všechny kóty a úhly pro přípravu z 4 m kusu.
+    </p>
+
+    <div class="info">
+      <strong>Pojmy a orientace:</strong> „zadek" = konec u domu (tam je krov
+      <em>výš</em>), „předek" = konec ven nad terasou (tam je <em>níž</em>).
+      Sklon 5,76° klesá od domu ven. <strong>Všechny podélné délky měř po HORNÍ
+      hraně krovu od zadního čela</strong> (= referenční hrana pro rýsování).
+    </div>
+
+    <div class="warnbox">
+      <strong>📐 Bez úhloměru — jak narýsovat úhel.</strong> Sklon krovu je
+      <strong>5,76° = 10,1 cm na metr</strong> (≈ 1:10). Nic neměříš úhloměrem:
+      <ul style="margin:0.4em 0 0 1.2em;">
+        <li><strong>Svislé řezy</strong> (obě čela + svislé stěny výřezů): na boční
+          (16 cm vysoké) straně narýsuj <strong>kolmou čáru</strong> přes celých
+          16 cm. Pak jeden konec čáry <strong>posuň o 1,6 cm</strong> podél krovu a
+          spoj — to je svislá čára. (Na horní/spodní 8 cm straně řež rovně/kolmo.)</li>
+        <li><strong>Vodorovné řezy</strong> (sedla výřezů + spodní zářez): úhel
+          <em>vůbec nerýsuj</em> — jen <strong>odměř hloubku na obou koncích a spoj
+          přímkou</strong>; spojnice vyjde vodorovná sama. Hloubky jsou v kótách níže.</li>
+      </ul>
+      Pravidlo na zapamatování: <strong>16 cm šířky → posun 1,6 cm</strong> (sklon 1:10).
+    </div>
+
+    <h3>Základ</h3>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Profil</strong></td><td class="num">8 × 16 cm</td><td>KVH C24; 8 cm na šířku (osa X), 16 cm na výšku (kolmo k rovině střechy)</td></tr>
+        <tr><td><strong>Počet</strong></td><td class="num">8 ks</td><td>identické (X pozice K1–K8 viz 3D model)</td></tr>
+        <tr><td><strong>Sklon</strong></td><td class="num">5,76°</td><td>= 10,1 %; tan = 0,1008; cos = 0,9950</td></tr>
+        <tr><td><strong>Hrubý kus</strong></td><td class="num">≥ 415 cm</td><td>krov je 405 cm po šikmině — 4 m kus nestačí; kup 4,2 m a ořež na obou koncích</td></tr>
+        <tr><td><strong>Hotová délka horní hrany</strong></td><td class="num">405,0 cm</td><td>mezi zadním a předním svislým čelem (po horní hraně); o 5 cm delší než dřív (delší přední přesah)</td></tr>
+        <tr><td><strong>Rozteč výřezů (středy průvlaků)</strong></td><td class="num">362,3 cm</td><td>po šikmině (= 360,5 cm vodorovně) — vzdálenost mezi sedly</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Všechny kóty — od zadního čela, po horní hraně</h3>
+    <table class="patky">
+      <thead>
+        <tr><th>Prvek</th><th class="num">Poloha [cm]</th><th>Rozměr</th><th>Jak narýsovat (bez úhloměru)</th></tr>
+      </thead>
+      <tbody>
+        <tr class="row-back"><td class="label">Zadní čelo</td><td class="num">0</td><td>svislé</td><td>kolmá čára přes 16 cm + posun konce 1,6 cm</td></tr>
+        <tr class="row-back"><td class="label">Zadní výřez (sedlo)</td><td class="num">0 → 12,1</td><td>sedlo 12 cm × hl. <strong>4 cm</strong></td><td>vnitřní stěna svisle (posun 1,6 cm); sedlo = spoj hloubek 3,4 → 4,6 cm</td></tr>
+        <tr class="row-front"><td class="label">Přední výřez (sedlo)</td><td class="num">362,3 → 374,4</td><td>sedlo 12 cm × hl. <strong>7 cm</strong></td><td>obě stěny svisle (posun 1,6 cm); sedlo = spoj hloubek 6,4 → 7,6 cm</td></tr>
+        <tr class="row-front"><td class="label">Dekor. spodní zářez</td><td class="num">od čela po nosník ≈ 30,5</td><td>vodorovný, hl. ~3 cm u čela</td><td>spoj hloubek 3 cm (u čela) → 0 (u nosníku)</td></tr>
+        <tr class="row-front"><td class="label">Přední čelo</td><td class="num">405,0</td><td>svislé</td><td>kolmá čára přes 16 cm + posun konce 1,6 cm</td></tr>
+      </tbody>
+    </table>
+    <p class="info">
+      Hloubka výřezu je měřená <strong>ve středu průvlaku</strong>. Protože sedlo
+      je vodorovné a krov skloněný, výřez je na hraně blíž k domu o ~0,6 cm
+      mělčí a na hraně dál o ~0,6 cm hlubší: <strong>zadní 3,4 → 4,6 cm</strong>,
+      <strong>přední 6,4 → 7,6 cm</strong>. Sedlo dělej podle vodováhy (vodorovně),
+      ne kolmo na krov.
+    </p>
+
+    <h3>Schéma krovu z boku</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 230" xmlns="http://www.w3.org/2000/svg">
+        <!-- Schéma (úhel sklonu zvětšen pro názornost). Zadek vlevo, předek vpravo. -->
+        <!-- Beams under the seats -->
+        <rect x="40" y="104" width="70" height="55" fill="#d9bf80" stroke="#8a6f3a" stroke-width="1.2" />
+        <rect x="820" y="127" width="60" height="60" fill="#d9bf80" stroke="#8a6f3a" stroke-width="1.2" />
+        <!-- Rafter outline -->
+        <polygon points="40,40 960,90 960,145 880,145 880,127 820,127 820,162 110,124 110,104 40,104"
+                 fill="#c4a07a" stroke="#7a5b3d" stroke-width="2" />
+        <!-- Back face label -->
+        <text x="34" y="36" class="svg-label small" text-anchor="end">zadní čelo (svislé)</text>
+        <!-- Back notch dims -->
+        <line class="svg-dim-line" x1="40" y1="170" x2="110" y2="170" />
+        <line class="svg-dim-line" x1="40" y1="166" x2="40" y2="174" />
+        <line class="svg-dim-line" x1="110" y1="166" x2="110" y2="174" />
+        <text class="svg-dim-text" x="75" y="185" text-anchor="middle">zadní výřez 12 cm / hl. 4 cm</text>
+        <!-- Front notch dims -->
+        <line class="svg-dim-line" x1="820" y1="200" x2="880" y2="200" />
+        <line class="svg-dim-line" x1="820" y1="196" x2="820" y2="204" />
+        <line class="svg-dim-line" x1="880" y1="196" x2="880" y2="204" />
+        <text class="svg-dim-text" x="850" y="216" text-anchor="middle">přední výřez 12 cm / hl. 7 cm</text>
+        <!-- Front face + undercut -->
+        <text x="966" y="118" class="svg-label small">přední čelo (svislé)</text>
+        <line class="svg-dim-line alt" x1="880" y1="158" x2="960" y2="158" />
+        <line class="svg-dim-line alt" x1="880" y1="154" x2="880" y2="162" />
+        <line class="svg-dim-line alt" x1="960" y1="154" x2="960" y2="162" />
+        <text class="svg-dim-text alt" x="920" y="174" text-anchor="middle">spodní zářez (přesah ~30,5 cm)</text>
+        <!-- pitch + length -->
+        <text x="500" y="60" class="svg-label small center">↘ sklon 5,76°</text>
+        <line class="svg-dim-line" x1="40" y1="28" x2="960" y2="28" />
+        <line class="svg-dim-line" x1="40" y1="24" x2="40" y2="32" />
+        <line class="svg-dim-line" x1="960" y1="24" x2="960" y2="32" />
+        <text class="svg-dim-text" x="500" y="22" text-anchor="middle">horní hrana 405 cm</text>
+      </svg>
+      <div class="caption">
+        Boční pohled, zadek vlevo (u domu, výš), předek vpravo (nad terasou, níž).
+        Úhel sklonu je <strong>zvětšen pro názornost</strong> — závazné jsou kóty
+        v tabulce. Oba výřezy jsou „sedla" otevřená dolů (průvlak do nich zapadne
+        zespodu); dosedací plocha je vodorovná, boční stěny svislé.
+      </div>
+    </div>
+
+    <h3>Úhly bez úhloměru — posun čárky</h3>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Svislé řezy</strong> (obě čela + svislé stěny výřezů)</td><td>narýsuj kolmou čáru přes 16 cm boku → jeden konec <strong>posuň o 1,6 cm</strong> podél krovu → spoj. (8 cm strana: řež kolmo.)</td></tr>
+        <tr><td><strong>Vodorovné řezy</strong> (sedla výřezů + spodní zářez)</td><td>úhel nerýsuj — <strong>odměř hloubku na obou koncích a spoj přímkou</strong> (spojnice je vodorovná sama)</td></tr>
+        <tr><td><strong>Roh výřezu</strong> (sedlo × stěna)</td><td><strong>90°</strong> — sedlo je kolmé na svislou stěnu (úhelník)</td></tr>
+        <tr><td><strong>Kontrola po usazení</strong></td><td>čela = svislá (vodováha/olovnice), sedla = vodorovná (vodováha)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>Spodní zářez končí na nosníku.</strong> Krov přesahuje přední průvlak
+      o <strong>~30,5 cm</strong> (od vnější hrany průvlaku po přední čelo) — spodní
+      vodorovný zářez vede přesně od předního čela až k tomu líci průvlaku, takže
+      nezasahuje do předního výřezu. Hloubka u čela ~3 cm, u nosníku 0.
+    </div>
+
+    <h3>Postup řezání jednoho krovu</h3>
+    <ol style="font-size: 14px; line-height: 1.7;">
+      <li><strong>Naměř a narýsuj horní hranu</strong> = 405 cm mezi budoucími čely.
+        Od zadního konce odměř polohy obou výřezů (zadní 0 → 12,1 cm; přední
+        362,3 → 374,4 cm).</li>
+      <li><strong>Zadní čelo</strong> — svislý řez: kolmá čára přes 16 cm, konec
+        posuň 1,6 cm, spoj. Zadní výřez začíná přímo na tomto čele.</li>
+      <li><strong>Zadní výřez</strong> — sedlo 12,1 cm dlouhé. Odměř hloubku
+        3,4 cm u čela a 4,6 cm na vnitřní stěně, spoj (= vodorovné sedlo). Vnitřní
+        stěna svisle (posun 1,6 cm), roh 90°.</li>
+      <li><strong>Přední výřez</strong> — sedlo 12,1 cm. Odměř hloubku 6,4 cm
+        (zadní stěna) a 7,6 cm (přední stěna), spoj. Obě stěny svisle (posun 1,6 cm).</li>
+      <li><strong>Přední čelo</strong> — svislý řez na poloze 405 cm (posun 1,6 cm).</li>
+      <li><strong>Dekorativní spodní zářez</strong> — od předního čela vodorovně
+        ~30,5 cm zpět <strong>až k přednímu průvlaku</strong>. Odměř hloubku 3 cm
+        u čela a 0 u průvlaku, spoj (= vodorovná spodní ploška).</li>
+      <li><strong>Zkušebně nasaď první krov</strong> na oba průvlaky, zkontroluj
+        sklon 5,76° a dosednutí sedel. Podle něj doměř a vyřež zbylých 7 (jako
+        šablonu).</li>
+    </ol>
+
+    <div class="info">
+      <strong>Tip:</strong> První hotový krov použij jako <strong>šablonu</strong> —
+      obkresli čela i výřezy na další kusy, ať jsou všechny identické. Hurricane
+      ties (stahovací úhelníky krov ↔ průvlak) a latě/krytina přijdou až po
+      usazení rámu — tady řešíme jen přípravu krovů.
+    </div>
+  </div>
+
+  <!-- ===================== TAB: Latě ===================== -->
+  <div class="tab-content" id="late">
+    <h2>Latě — délka a spojení nad krovem</h2>
+    <p>
+      Latě leží <strong>na vrchu krovů</strong>, podél domu (osa X), a nesou
+      polykarbonát. Jsou skloněné <strong>5,76°</strong> stejně jako krovy.
+      Celkem <strong>6 latí</strong> (L1 u domu … L6 vepředu), profil
+      <strong>40 × 60 mm</strong> hoblovaný KVH (na plocho — 60 mm ve směru Y leží
+      na krovu, 40 mm tloušťka). Rozteč rovnoměrných 76,8 cm (≤ 80 cm dle desky Wabe 76/18).
+    </p>
+
+    <h3>Základ</h3>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Profil</strong></td><td class="num">40 × 60 mm</td><td>KVH, na plocho (60 mm na krovu, 40 mm tloušťka)</td></tr>
+        <tr><td><strong>Počet</strong></td><td class="num">6 ks</td><td>L1–L6, podél domu</td></tr>
+        <tr><td><strong>Délka jedné latě</strong></td><td class="num">758,1 cm</td><td>X od 232,9 do 991,0 cm (od pravého rohu domu)</td></tr>
+        <tr><td><strong>Přesah za krajní krov</strong></td><td class="num">34,4 cm</td><td>na každé straně (lať přečnívá krajní krovy K1/K8 — drží boční partial desky)</td></tr>
+        <tr><td><strong>Sklon</strong></td><td class="num">5,76°</td><td>kopíruje krovy</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Pozice latí — od předního čela krovu, po šikmině</h3>
+    <p>
+      Měřeno <strong>po horní hraně krovu (šikmo)</strong> od <strong>předního
+      svislého čela krovu</strong> směrem k domu. Natáhni metr podél vrchu krovu,
+      <strong>nulu přilož na přední čelo</strong> a označ všech 6 latí z jedné nuly
+      (bez načítání chyb po roztečích). Stejné značky platí na všech 8 krovech.
+    </p>
+    <table class="patky">
+      <thead><tr><th>lať</th><th class="num">od čela po šikmině [cm]</th><th class="num">rozteč k další (blíž domu) [cm]</th><th class="num">(ref) vodorovně od domu [cm]</th></tr></thead>
+      <tbody>
+        <tr><td class="label">L6</td><td class="num">3,2</td><td class="num">76,8</td><td class="num">404,8</td></tr>
+        <tr><td class="label">L5</td><td class="num">80,0</td><td class="num">76,8</td><td class="num">328,4</td></tr>
+        <tr><td class="label">L4</td><td class="num">156,8</td><td class="num">76,8</td><td class="num">252,0</td></tr>
+        <tr><td class="label">L3</td><td class="num">233,6</td><td class="num">76,8</td><td class="num">175,6</td></tr>
+        <tr><td class="label">L2</td><td class="num">310,3</td><td class="num">76,8</td><td class="num">99,2</td></tr>
+        <tr><td class="label">L1</td><td class="num">387,1</td><td class="num">—</td><td class="num">22,8</td></tr>
+      </tbody>
+    </table>
+    <p class="info">
+      <strong>Rozteče jsou rovnoměrné — všech 5 po 76,8 cm</strong> po šikmině
+      (≤ 80 cm dle desky Wabe 76/18). <strong>L6</strong> je 3,2 cm zpět od předního
+      čela (přední hrana latě lícuje s koncem krovu), <strong>L1</strong> je na druhém
+      konci 17,9 cm od zadního konce krovu (z toho 15,1 cm bez krytiny pod podhledem).
+      Krajní latě L1/L6 jsou doražené na hrany krytiny, vnitřní jsou rozdělené
+      rovnoměrně mezi ně. Hodnoty zaokrouhlené na 1 mm. Poslední sloupec je jen
+      kontrolní (vodorovně od domu) — na stavbě měř ten šikmý od čela.
+    </p>
+
+    <h3>Přesahy a pozice v X (přehled)</h3>
+    <p>
+      Latě nesedí na sloupech — leží na krovech. V X jdou od <strong>232,9</strong>
+      do <strong>991,0 cm</strong> (od pravého rohu domu), střed <strong>611,95 cm</strong>.
+      Konce jsou zarovnané s hranou krytiny (latě drží i boční partial pláty).
+      Pergola je symetrická, takže přesahy platí pro <strong>obě strany</strong>.
+    </p>
+    <table class="patky">
+      <thead><tr><th>Přesah konce latě za…</th><th class="num">na stranu [cm]</th><th>poznámka</th></tr></thead>
+      <tbody>
+        <tr><td>konec průvlaku = vnější líc krovu K1/K8</td><td class="num">30,4</td><td>= šířka partial plátů (4 vlnky)</td></tr>
+        <tr><td>osu krajního krovu K1/K8</td><td class="num">34,4</td><td>měřeno k ose krovu</td></tr>
+        <tr><td>hranu betonu</td><td class="num">46,1</td><td>krytina přesahuje beton ven</td></tr>
+        <tr><td>vnější líc krajního sloupu</td><td class="num">52,1</td><td>nejvzdálenější přesah</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>Hlavní hodnota — řídí celý X-layout.</strong> Symetrie kolem
+      <strong>středu pergoly</strong> (= střed terasy, 332,95 cm od každé boční hrany
+      betonu) + <strong>rozteč krovů 98,8 cm</strong>. Když sedí střed a rozteč,
+      všechny přesahy (52,1 / 34,4 / 30,4 cm) i překryvy desek nad krovy vyjdou samy.
+    </div>
+
+    <div class="warnbox">
+      <strong>📐 Rozteč 98,8 cm se měří OD OSY K OSE krovu</strong> (středy, ne líce!).
+      Těch 98,8 cm = skladební šířka desky 988 mm — proto každý překryv dvou sousedních
+      desek padne <em>přesně na osu krovu</em> a není vidět. <strong>Pozor, rozteč není
+      všude stejná:</strong>
+      <ul style="margin:0.4em 0 0 1.2em;">
+        <li><strong>6 vnitřních roztečí (K2…K7) = 98,8 cm os-na-osu.</strong></li>
+        <li><strong>2 krajní rozteče (K1–K2, K7–K8) = 97,65 cm</strong> — krajní krovy
+          K1/K8 jsou o 1,15 cm staženy dovnitř, aby jejich <em>vnější bok</em> lícoval
+          s koncem průvlaku (263,3 / 960,6), ne aby seděly na půlrozteči.</li>
+      </ul>
+    </div>
+
+    <h3>Spojení nad krovem (lať je delší než KVH)</h3>
+    <p>
+      758 cm přesahuje běžnou délku KVH (~5 m), takže každá lať se skládá ze
+      <strong>2 kusů</strong> spojených <strong>nad krovem</strong> (nikdy ne v poli
+      mezi krovy — tam by spoj prověsil polykarbonát). Krovy K1–K8 jsou v X na:
+    </p>
+    <table class="patky">
+      <thead><tr><th>krov</th><th class="num">X [cm]</th><th>krov</th><th class="num">X [cm]</th></tr></thead>
+      <tbody>
+        <tr><td class="label">K1</td><td class="num">267,3</td><td class="label">K5</td><td class="num">661,4</td></tr>
+        <tr><td class="label">K2</td><td class="num">365,0</td><td class="label">K6</td><td class="num">760,1</td></tr>
+        <tr><td class="label">K3</td><td class="num">463,8</td><td class="label">K7</td><td class="num">858,9</td></tr>
+        <tr><td class="label">K4</td><td class="num">562,6</td><td class="label">K8</td><td class="num">956,6</td></tr>
+      </tbody>
+    </table>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Spoj nad K4</strong> (X = 562,6)</td><td class="num">329,7 + 428,4 cm</td><td>2 kusy, styk přesně nad osou krovu K4</td></tr>
+        <tr><td><strong>Spoj nad K5</strong> (X = 661,4)</td><td class="num">428,5 + 329,6 cm</td><td>2 kusy, styk nad osou krovu K5</td></tr>
+        <tr><td><strong>Prostřídat!</strong></td><td colspan="2">liché latě (L1, L3, L5) spoj nad <strong>K4</strong>, sudé (L2, L4, L6) nad <strong>K5</strong> — aby spoje nebyly v jedné linii</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info">
+      <strong>Detail spoje:</strong> Stykové (na sraz) spojení nad krovem — oba
+      konce latí dosednou na 8 cm široký vrch krovu, styk přesně nad osou. Každý
+      konec přišroubuj <strong>2× Spax 5 × 80 mm</strong> šikmo dolů do krovu.
+      Volitelně přidej boční dřevěnou příložku 40 × 60 mm dl. ~30 cm přes spoj
+      (4 vruty). Polykarbonát nahoře spoj navíc přitáhne.
+    </div>
+
+    <h3>Schéma — pohled shora (latě × krovy, místa spojů)</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 1000 330" xmlns="http://www.w3.org/2000/svg">
+        <!-- House band top -->
+        <rect x="20" y="14" width="960" height="12" fill="#fff5c9" stroke="#b8a04b" stroke-width="1" />
+        <text class="svg-label small" x="24" y="10">dům (zadní stěna)</text>
+        <!-- Rafters K1..K8 (vertical) -->
+        <g stroke="#7a5b3d" stroke-width="6" opacity="0.5">
+          <line x1="63.6" y1="30" x2="63.6" y2="300" />
+          <line x1="187.2" y1="30" x2="187.2" y2="300" />
+          <line x1="312.3" y1="30" x2="312.3" y2="300" />
+          <line x1="437.4" y1="30" x2="437.4" y2="300" />
+          <line x1="562.5" y1="30" x2="562.5" y2="300" />
+          <line x1="687.5" y1="30" x2="687.5" y2="300" />
+          <line x1="812.5" y1="30" x2="812.5" y2="300" />
+          <line x1="936.4" y1="30" x2="936.4" y2="300" />
+        </g>
+        <g class="svg-label small" fill="#7a5b3d" text-anchor="middle">
+          <text x="63.6" y="316">K1</text><text x="187.2" y="316">K2</text>
+          <text x="312.3" y="316">K3</text><text x="437.4" y="316">K4</text>
+          <text x="562.5" y="316">K5</text><text x="687.5" y="316">K6</text>
+          <text x="812.5" y="316">K7</text><text x="936.4" y="316">K8</text>
+        </g>
+        <!-- Battens L1..L6 (horizontal) -->
+        <g stroke="#1a5f7f" stroke-width="4">
+          <line x1="20" y1="45" x2="980" y2="45" />
+          <line x1="20" y1="95" x2="980" y2="95" />
+          <line x1="20" y1="147" x2="980" y2="147" />
+          <line x1="20" y1="199" x2="980" y2="199" />
+          <line x1="20" y1="250" x2="980" y2="250" />
+          <line x1="20" y1="300" x2="980" y2="300" />
+        </g>
+        <g class="svg-label small" fill="#1a5f7f">
+          <text x="2" y="48">L1</text><text x="2" y="98">L2</text><text x="2" y="150">L3</text>
+          <text x="2" y="202">L4</text><text x="2" y="253">L5</text><text x="2" y="303">L6</text>
+        </g>
+        <!-- Splice dots (red), staggered K4 (odd) / K5 (even) -->
+        <g fill="#cf222e" stroke="#6e0d12" stroke-width="1">
+          <circle cx="437.4" cy="45" r="6" />
+          <circle cx="562.5" cy="95" r="6" />
+          <circle cx="437.4" cy="147" r="6" />
+          <circle cx="562.5" cy="199" r="6" />
+          <circle cx="437.4" cy="250" r="6" />
+          <circle cx="562.5" cy="300" r="6" />
+        </g>
+      </svg>
+      <div class="caption">
+        Pohled shora. Modré = latě (L1–L6), hnědé svislé = krovy (K1–K8),
+        červené tečky = spoje latí (prostřídané nad K4 / K5). Latě přečnívají
+        krajní krovy o 34,4 cm na obě strany.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB: Nosníky ===================== -->
+  <div class="tab-content" id="nosniky">
+    <h2>Nosníky — průvlaky + kolmé spojující trámy</h2>
+    <p>
+      Nosníky jsou dvojí, všechny z KVH <strong>12 × 12 cm</strong>:
+      <strong>2 čelní průvlaky</strong> podél domu (osa X — zadní u domu, přední
+      u kraje terasy; nesou krovy v zubech) a <strong>2 boční „kolmé" nosníky</strong>
+      podél +Y (kolmé na průvlaky), které spojují přední a zadní sloupy po bocích
+      a leží <strong>na vrchu předního průvlaku</strong>.
+    </p>
+
+    <h3>Délky a polohy</h3>
+    <table class="patky">
+      <thead><tr><th>Prvek</th><th>Profil</th><th class="num">Délka [cm]</th><th class="num">Ks</th><th>Poloha</th></tr></thead>
+      <tbody>
+        <tr><td class="label">Zadní průvlak</td><td>12 × 12</td><td class="num">697,3</td><td class="num">1</td><td>podél domu; X 263,3–960,6; vrch Z = 252,3 cm</td></tr>
+        <tr><td class="label">Přední průvlak</td><td>12 × 12</td><td class="num">697,3</td><td class="num">1</td><td>u kraje terasy; X 263,3–960,6; vrch Z = 219,0 cm</td></tr>
+        <tr><td class="label">Boční nosník (L+P)</td><td>12 × 12</td><td class="num">360,5</td><td class="num">2</td><td>kolmo, Y 17–377,5; leží na předním průvlaku (Z 219–231)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Přesahy a pozice na sloupech (X)</h3>
+    <p>
+      Čelní průvlaky jdou v X od <strong>263,3</strong> do <strong>960,6 cm</strong>
+      (délka 697,3), střed <strong>611,95 cm</strong>. Konec je zarovnaný s hranou
+      plných desek a s vnějším lícem krajního krovu K1/K8 (uživatel: „ať čučí jen
+      latě"). Pergola je symetrická → hodnoty platí pro obě strany.
+    </p>
+    <table class="patky">
+      <thead><tr><th>Konec průvlaku vůči…</th><th class="num">na stranu [cm]</th><th>poznámka</th></tr></thead>
+      <tbody>
+        <tr><td>vnější líc krajního sloupu</td><td class="num">+21,7</td><td>průvlak přesahuje sloup ven</td></tr>
+        <tr><td>osa krajního sloupu</td><td class="num">+27,7</td><td>—</td></tr>
+        <tr><td>hrana betonu</td><td class="num">−15,7</td><td>průvlak končí 15,7 cm uvnitř od hrany betonu</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warnbox">
+      <strong>Pozice na sloupech — pozor na zadní řadu.</strong> Zadní průvlak leží
+      na 4 zadních sloupech, přední na 4 předních. Vnitřní podpory ale <em>nejsou
+      nad sebou</em>: přední průvlak dosedá na sloupy s osami <strong>505,0</strong>
+      a <strong>718,9 cm</strong>, zadní průvlak na <strong>534,97</strong> a 718,9 cm
+      — pravý vnitřní zadní sloup (<strong>Z2</strong>) je záměrně posunutý o 30 cm
+      doleva za elektrickou zásuvku.
+    </div>
+
+    <div class="info">
+      <strong>Hlavní hodnota.</strong> Stejná jako u latí: střed pergoly (= střed
+      terasy) + <strong>rozteč krovů 98,8 cm měřená od osy k ose</strong> (vnitřní;
+      krajní 97,65 cm — viz tab Latě). Konce průvlaků 21,7 cm za vnější líc krajních
+      sloupů na obě strany (symetricky) = rychlá kontrola, že je rám vystředěný.
+    </div>
+
+    <h3>Spojení čelních průvlaků (jsou delší než KVH)</h3>
+    <p>
+      697 cm přesahuje běžné KVH (~5 m). Dvě varianty:
+    </p>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>BSH lepený 12 × 12</strong></td><td>k dispozici 6–12 m → <strong>1 kus bez spoje</strong> (staticky nejlepší, doporučeno)</td></tr>
+        <tr><td><strong>2 kusy se spojem NAD SLOUPEM</strong></td><td>spoj jen nad sloupem (X = 505 nebo 718,9 cm), <strong>nikdy v poli</strong>. Kusy ~242 + 456 cm. Přeplátování nebo styk + ocelová příložka, šrouby M12.</td></tr>
+      </tbody>
+    </table>
+    <p class="info">
+      Boční nosník 360,5 cm se vejde do jednoho KVH kusu — <strong>bez spoje</strong>.
+    </p>
+
+    <h3>Jak to spojit</h3>
+    <table class="patky">
+      <tbody>
+        <tr><td><strong>Průvlak ↔ sloup</strong></td><td>průvlak leží na vrchu sloupu (zadní na 4 zadních sloupech, přední na 4 předních). Kotvit úhelníkem (Simpson/BMF) nebo dřevěným trnem Ø 20 + dlouhým vrutem. Krovy navíc drží v zubu (viz Krovy).</td></tr>
+        <tr><td><strong>Boční nosník ↔ přední průvlak</strong></td><td>boční nosník <strong>leží na</strong> předním průvlaku (kříží ho v Y 365,5–377,5), 2× Spax 8 × 220 mm dolů skrz nosník do průvlaku.</td></tr>
+        <tr><td><strong>Boční nosník ↔ střední sloup</strong></td><td>střední sloup (2 ks, jen rohové) sahá přesně na <strong>spodek bočního nosníku</strong> (Z = 219) a podpírá ho uprostřed (Y ≈ 191). Úhelník + vruty.</td></tr>
+        <tr><td><strong>Boční nosník ↔ zadní sloup</strong></td><td>zadní sloup je vyšší (vrch 240,3) a <strong>míjí</strong> boční nosník bokem. Nosník (zadní konec Y = 17) se přišroubuje na <strong>přední líc zadního sloupu</strong> úhelníkem.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Schéma — pohled shora (rám nosníků)</h3>
+    <div class="diagram">
+      <svg viewBox="0 0 920 380" xmlns="http://www.w3.org/2000/svg">
+        <!-- House band -->
+        <rect x="40" y="18" width="840" height="12" fill="#fff5c9" stroke="#b8a04b" stroke-width="1" />
+        <text class="svg-label small" x="44" y="14">dům</text>
+        <!-- Back průvlak (top), front průvlak (bottom) -->
+        <rect x="70" y="54" width="780" height="12" fill="#c4a07a" stroke="#7a5b3d" stroke-width="1.5" />
+        <rect x="70" y="314" width="780" height="12" fill="#c4a07a" stroke="#7a5b3d" stroke-width="1.5" />
+        <!-- Side beams (left, right) -->
+        <rect x="95" y="60" width="12" height="260" fill="#b0895f" stroke="#7a5b3d" stroke-width="1.5" />
+        <rect x="813" y="60" width="12" height="260" fill="#b0895f" stroke="#7a5b3d" stroke-width="1.5" />
+        <!-- Posts (dots): back 4, front 4, middle 2 -->
+        <g fill="#444">
+          <circle cx="101" cy="60" r="5" /><circle cx="340" cy="60" r="5" /><circle cx="580" cy="60" r="5" /><circle cx="819" cy="60" r="5" />
+          <circle cx="101" cy="320" r="5" /><circle cx="340" cy="320" r="5" /><circle cx="580" cy="320" r="5" /><circle cx="819" cy="320" r="5" />
+          <circle cx="101" cy="190" r="5" /><circle cx="819" cy="190" r="5" />
+        </g>
+        <!-- Labels -->
+        <text class="svg-label small" x="460" y="50" text-anchor="middle">Zadní průvlak 697,3 cm (vrch Z=252,3)</text>
+        <text class="svg-label small" x="460" y="344" text-anchor="middle">Přední průvlak 697,3 cm (vrch Z=219,0)</text>
+        <text class="svg-label small" x="60" y="195" text-anchor="end">boční</text>
+        <text class="svg-label small" x="60" y="208" text-anchor="end">nosník</text>
+        <text class="svg-label small" x="60" y="221" text-anchor="end">360,5 cm</text>
+        <text class="svg-label small" fill="#444" x="580" y="78">● sloupy (10 ks)</text>
+      </svg>
+      <div class="caption">
+        Pohled shora. Hnědé vodorovné = čelní průvlaky (podél domu), světlejší
+        svislé = boční „kolmé" nosníky, tečky = sloupy (4 zadní + 4 přední + 2
+        střední). Boční nosníky leží na předním průvlaku a spojují boky pergoly.
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const tabs = document.querySelectorAll('.vartab');
+const contents = document.querySelectorAll('.tab-content');
+tabs.forEach(t => {
+  t.addEventListener('click', () => {
+    if (t.hasAttribute('disabled')) return;
+    tabs.forEach(x => x.classList.remove('active'));
+    contents.forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById(t.dataset.tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
